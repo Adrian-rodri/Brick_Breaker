@@ -1,2 +1,7 @@
-build/
 .qtcreator/
+build/
+build-*/
+*.user
+*.user.*
+.DS_Store
+.vscode/
