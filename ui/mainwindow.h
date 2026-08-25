@@ -17,6 +17,10 @@ public:
     explicit MainWindow(QWidget *parent = nullptr);
     ~MainWindow() override;
 
+private slots:
+
+    void on_btnVerContra_clicked();
+
 private:
     Ui::MainWindow *ui;
 };
