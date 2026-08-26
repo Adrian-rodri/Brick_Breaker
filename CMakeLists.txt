@@ -18,6 +18,10 @@ qt_add_executable(BrickBreaker
     ui/mainwindow.cpp
     ui/mainwindow.h
     ui/mainwindow.ui
+    ui/ventanaprincipal.h ui/ventanaprincipal.cpp
+    ui/pantallamenuprincipal.h ui/pantallamenuprincipal.cpp
+    ui/pantallalogin.h ui/pantallalogin.cpp
+    ui/pantallasignup.h ui/pantallasignup.cpp
 )
 
 target_link_libraries(BrickBreaker

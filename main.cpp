@@ -1,11 +1,10 @@
-#include "mainwindow.h"
-
+#include "ventanaprincipal.h"
 #include <QApplication>
 
 int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
-    MainWindow w;
+    VentanaPrincipal w;
     w.show();
     return QApplication::exec();
 }
