@@ -4,6 +4,8 @@
 #include <QMainWindow>
 #include <QStackedWidget>
 
+#include "pantallalogin.h"
+
 class VentanaPrincipal : public QMainWindow
 {
     Q_OBJECT
@@ -13,6 +15,7 @@ public:
 
 private:
     QStackedWidget *stackWidget;
+    PantallaLogin *pantallaLogin;
 
     void cargarLogin();
 };
