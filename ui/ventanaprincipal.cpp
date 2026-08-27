@@ -10,12 +10,12 @@ VentanaPrincipal::VentanaPrincipal(QWidget *parent) : QMainWindow(parent) {
     setCentralWidget(stackWidget);
 
     setStyleSheet("background-color: "+COLORFONDO+";");
-
-    cargarLogin();
+    pantallaLogin = new PantallaLogin(this);
+    cambiarPantalla(pantallaLogin);
 }
-void VentanaPrincipal::cargarLogin(){
-    pantallaLogin= new PantallaLogin(this);
-    stackWidget->addWidget(pantallaLogin);
+void VentanaPrincipal::cambiarPantalla(QWidget *pantalla){
+    stackWidget->addWidget(pantalla);
+    stackWidget->setCurrentWidget(pantalla);
 }
 //destructor
 VentanaPrincipal::~VentanaPrincipal(){}

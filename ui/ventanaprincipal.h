@@ -13,11 +13,12 @@ public:
     explicit VentanaPrincipal(QWidget *parent=nullptr);
     ~VentanaPrincipal() override;
 
+    PantallaLogin *pantallaLogin;
+    void cambiarPantalla(QWidget *pantalla);
+
 private:
     QStackedWidget *stackWidget;
-    PantallaLogin *pantallaLogin;
 
-    void cargarLogin();
 };
 
 #endif // VENTANAPRINCIPAL_H
