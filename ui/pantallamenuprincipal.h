@@ -1,10 +1,28 @@
 #ifndef PANTALLAMENUPRINCIPAL_H
 #define PANTALLAMENUPRINCIPAL_H
 
-class PantallaMenuPrincipal
+#include <QWidget>
+#include <QPushButton>
+#include <QBoxLayout>
+#include <QLabel>
+
+class PantallaMenuPrincipal : public QWidget
 {
+    Q_OBJECT
 public:
-    PantallaMenuPrincipal();
+    explicit PantallaMenuPrincipal(QWidget *parent=nullptr);
+    ~PantallaMenuPrincipal();
+
+private:
+    QLabel *lblTitulo;
+    QPushButton *btnJugar;
+    QPushButton *btnInstrucciones;
+    QPushButton *btnNiveles;
+    QPushButton *btnRecords;
+    QPushButton *btnSalir;
+
+    QVBoxLayout *layoutPrincipal;
+    void cargarUI();
 };
 
 #endif // PANTALLAMENUPRINCIPAL_H
