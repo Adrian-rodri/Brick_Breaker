@@ -24,6 +24,10 @@ qt_add_executable(BrickBreaker
     ui/pantallasignup.h ui/pantallasignup.cpp
     utils/constantes.h
     utils/constantes.cpp
+    model/usuario.h
+    model/usuario.cpp
+    core/gestorusuario.h
+    core/gestorusuario.cpp
 )
 
 target_link_libraries(BrickBreaker

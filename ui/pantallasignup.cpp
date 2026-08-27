@@ -60,8 +60,17 @@ void PantallaSignUp::cargarUi(){
     QHBoxLayout* layoutPass= new QHBoxLayout();
     btnVer= new QPushButton("👁");
     btnVer->setFixedWidth(20);
-    btnVer->setStyleSheet("border:0px;"
-                          "background-color: transparent;");
+    btnVer->setStyleSheet("QPushButton{"
+                          "background-color: transparent;"
+                          "border:0px;"
+                          "font-size:15px;"
+                          "font-weight:bold;"
+                          "}QPushButton::hover{"
+                          "font-size:17px;"
+                          "font-weight:bold;"
+                          "}QPushButton::pressed{"
+                          "font-size:19px;"
+                          "}");
     QLabel* lblPass= new QLabel("Contraseña");
     lblPass->setStyleSheet(estiloLblForm);
     linePass= new QLineEdit();
@@ -113,6 +122,7 @@ void PantallaSignUp::cargarUi(){
                            "}"
                            "QPushButton:hover{"
                            "   color: white;"
+                           "   font-size:19px;"
                            "}"
                            "QPushButton:pressed {"
                            "   color: "+COLORFONT+";"
@@ -145,7 +155,7 @@ void PantallaSignUp::verPassword(){
     if(linePass->echoMode()==QLineEdit::Password){
         linePass->setEchoMode(QLineEdit::Normal);
         lineConfirm->setEchoMode(QLineEdit::Normal);
-        btnVer->setText("◡");
+        btnVer->setText("🙈");
     }else{
         linePass->setEchoMode(QLineEdit::Password);
         lineConfirm->setEchoMode(QLineEdit::Password);

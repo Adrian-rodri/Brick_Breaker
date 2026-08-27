@@ -62,8 +62,17 @@ void PantallaLogin::cargarUI(){
 
     btnVerPass= new QPushButton("👁");
     btnVerPass->setFixedWidth(20);
-    btnVerPass->setStyleSheet("background-color: transparent;"
-                              "border:0px;");
+    btnVerPass->setStyleSheet("QPushButton{"
+                              "background-color: transparent;"
+                              "border:0px;"
+                              "font-size:15px;"
+                              "font-weight:bold;"
+                              "}QPushButton::hover{"
+                              "font-size:17px;"
+                              "font-weight:bold;"
+                              "}QPushButton::pressed{"
+                              "font-size:19px;"
+                              "}");
 
     QHBoxLayout *layoutPassH = new QHBoxLayout();
     layoutPassH->addWidget(linePass);
@@ -103,6 +112,7 @@ void PantallaLogin::cargarUI(){
                             "}"
                             "QPushButton:hover{"
                             "   color: white;"
+                            "   font-size:19px;"
                             "}"
                             "QPushButton:pressed {"
                             "   color: "+COLORFONT+";"
@@ -129,7 +139,7 @@ void PantallaLogin::cargarUI(){
 void PantallaLogin::verPassword(){
     if(linePass->echoMode()==QLineEdit::Password){
         linePass->setEchoMode(QLineEdit::Normal);
-        btnVerPass->setText("◡");
+        btnVerPass->setText("🙈");
     }else{
         linePass->setEchoMode(QLineEdit::Password);
         btnVerPass->setText("👁");
