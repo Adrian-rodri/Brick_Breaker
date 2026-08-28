@@ -24,10 +24,10 @@ private:
     QPushButton* btnCrear;
 
     void cargarUi();
-    bool passwordCoinciden();
-    bool existeUsuario();
+    bool coincidenContras();
     void verPassword();
     void regresar();
+    void crearNuevoUser();
 };
 
 #endif // PANTALLASIGNUP_H

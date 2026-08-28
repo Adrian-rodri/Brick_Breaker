@@ -2,13 +2,14 @@
 #define USUARIO_H
 
 #include <string>
+#include <functional>
 
 using namespace std;
 class Usuario
 {
 public:
-    Usuario(string& nombre, string& username, string& passwordHash);
-
+    Usuario(string& nombre, string& username, string& passwordPlano);
+    Usuario(string& nombre, string& username, string& passwordHash,int puntos,int mejorTiempo);
     //getters
     const string& getNombre() const;
     const string& getUsername() const;

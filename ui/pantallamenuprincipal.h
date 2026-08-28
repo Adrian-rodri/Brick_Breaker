@@ -23,6 +23,8 @@ private:
 
     QVBoxLayout *layoutPrincipal;
     void cargarUI();
+    void irAlJuego();
+    void irAOpciones();
 };
 
 #endif // PANTALLAMENUPRINCIPAL_H

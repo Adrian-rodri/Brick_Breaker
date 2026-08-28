@@ -6,6 +6,8 @@
 #include <QIcon>
 
 #include "pantallalogin.h"
+#include "gestorusuario.h"
+#include "pantallamenuprincipal.h"
 
 class VentanaPrincipal : public QMainWindow
 {
@@ -14,8 +16,12 @@ public:
     explicit VentanaPrincipal(QWidget *parent=nullptr);
     ~VentanaPrincipal() override;
 
+    GestorUsuario *gestorUsers;
+
     PantallaLogin *pantallaLogin;
+    PantallaMenuPrincipal* menuPrincipal;
     void cambiarPantalla(QWidget *pantalla);
+
 
 private:
     QStackedWidget *stackWidget;

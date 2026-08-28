@@ -162,13 +162,17 @@ void PantallaLogin::solicitarLogin(){
     string txtUser= lineUser->text().toStdString();
     string txtPass= linePass->text().toStdString();
 
+    VentanaPrincipal* ventana=(VentanaPrincipal*)this->window();
+
     if(txtUser.empty() || txtPass.empty()){
         lblStatus->setText("Llene todos los campos.");
 
-    }else if(txtUser=="admin" && txtPass=="1234"){
-        VentanaPrincipal* ventana=(VentanaPrincipal*)this->window();
-        PantallaMenuPrincipal* menuPrincipal= new PantallaMenuPrincipal();
-        ventana->cambiarPantalla(menuPrincipal);
+    }else if(ventana->gestorUsers->validarLogin(txtUser,txtPass)){
+        ventana->gestorUsers->iniciarSesion(txtUser);
+
+        ventana->menuPrincipal= new PantallaMenuPrincipal();
+        ventana->cambiarPantalla(ventana->menuPrincipal);
+
     }else{
         lblStatus->setText("Credenciales Incorrectas.");
     }

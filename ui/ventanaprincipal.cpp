@@ -11,7 +11,13 @@ VentanaPrincipal::VentanaPrincipal(QWidget *parent) : QMainWindow(parent) {
     setCentralWidget(stackWidget);
 
     setStyleSheet("background-color: "+COLORFONDO+";");
+
+    /*
+     * Inicializar variables necesarias
+     * */
     pantallaLogin = new PantallaLogin(this);
+    gestorUsers= new GestorUsuario();
+
     cambiarPantalla(pantallaLogin);
 }
 void VentanaPrincipal::cambiarPantalla(QWidget *pantalla){

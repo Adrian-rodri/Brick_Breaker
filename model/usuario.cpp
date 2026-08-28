@@ -9,6 +9,14 @@ Usuario::Usuario(string& nombre, string& username, string& passwordHash) {
     this->puntos=0;
     this->mejorTiempo=0;
 }
+//constructor para reconstruir el user (login)
+Usuario::Usuario(string& nombre, string& username, string& passwordPlano,int puntos,int mejorTiempo){
+    this->nombre=nombre;
+    this->username=username;
+    this->passwordHash=to_string(hash<string>{}(passwordPlano + username));
+    this->puntos=puntos;
+    this->mejorTiempo=mejorTiempo;
+}
 
 void Usuario::sumarPuntos(int puntos){
     this->puntos+=puntos;

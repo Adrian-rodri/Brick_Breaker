@@ -1,5 +1,7 @@
 #include "pantallamenuprincipal.h"
 #include "constantes.h"
+#include "ventanaprincipal.h"
+#include "pantallajuego.h"
 
 #include <QPushButton>
 #include <QVBoxLayout>
@@ -77,6 +79,14 @@ void PantallaMenuPrincipal::cargarUI(){
 
     layoutPrincipal->addLayout(layoutCentrado);
     layoutPrincipal->addStretch();
+
+    connect(btnJugar,&QPushButton::clicked,this,&PantallaMenuPrincipal::irAlJuego);
+}
+
+void PantallaMenuPrincipal::irAlJuego(){
+    VentanaPrincipal* ventana=(VentanaPrincipal*)this->window();
+    PantallaJuego *pantallaJuego= new PantallaJuego();
+    ventana->cambiarPantalla(pantallaJuego);
 }
 
 PantallaMenuPrincipal::~PantallaMenuPrincipal(){

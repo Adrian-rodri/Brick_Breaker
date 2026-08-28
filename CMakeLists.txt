@@ -7,9 +7,10 @@ qt_standard_project_setup()
 
 include_directories(
     core
-    entities
+    model
     ui
     utils
+
 )
 set(CMAKE_AUTORCC ON)
 

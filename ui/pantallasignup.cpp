@@ -88,10 +88,12 @@ void PantallaSignUp::cargarUi(){
     lineConfirm->setStyleSheet(estiloLineEdit);
     lineConfirm->setEchoMode(QLineEdit::Password);
 
+    lblStatus=  new QLabel("");
     layoutForm->addRow(lblNombre,lineNombre);
     layoutForm->addRow(lblUser,lineUser);
     layoutForm->addRow(lblPass,layoutPass);
     layoutForm->addRow(lblConfirm,lineConfirm);
+    layoutForm->addRow(lblStatus);
 
     btnCrear= new QPushButton("Crear Cuenta");
     btnCrear->setStyleSheet("QPushButton{"
@@ -147,10 +149,38 @@ void PantallaSignUp::cargarUi(){
     //connects
     connect(btnVer,&QPushButton::clicked,this,&PantallaSignUp::verPassword);
     connect(btnBack,&QPushButton::clicked,this,&PantallaSignUp::regresar);
+    connect(btnCrear,&QPushButton::clicked,this,&PantallaSignUp::crearNuevoUser);
+}
+void PantallaSignUp::crearNuevoUser(){
+    string nuevoNombre= lineNombre->text().toStdString();
+    string nuevoUsername= lineUser->text().toStdString();
+    string nuevaPassword= linePass->text().toStdString();//falta hashear la password
+
+    VentanaPrincipal* ventana=(VentanaPrincipal*)this->window();
+
+    if(nuevoNombre.empty() || nuevoUsername.empty() || nuevaPassword.empty() || lineConfirm->text().isEmpty()){
+        lblStatus->setText("Llene todos los campos.");
+    }else if(ventana->gestorUsers->existeUsuario(nuevoUsername)){
+        lblStatus->setText("El usuario ya existe.");
+    }else if(!coincidenContras()){
+        lblStatus->setText("Las contraseñas no coinciden.");
+    }else{
+        Usuario nuevoUsuario(nuevoNombre,nuevoUsername,nuevaPassword);
+        ventana->gestorUsers->agregarUsuarioDisco(nuevoUsuario);
+
+        ventana->menuPrincipal= new PantallaMenuPrincipal();
+        ventana->cambiarPantalla(ventana->menuPrincipal);
+    }
 }
 void PantallaSignUp::regresar(){
     VentanaPrincipal* ventana=(VentanaPrincipal*)this->window();
     ventana->cambiarPantalla(ventana->pantallaLogin);
+}
+bool PantallaSignUp::coincidenContras(){
+    string contra= linePass->text().toStdString();
+    string confirm=lineConfirm->text().toStdString();
+
+    return contra==confirm;
 }
 
 void PantallaSignUp::verPassword(){
