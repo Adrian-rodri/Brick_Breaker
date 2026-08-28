@@ -1,4 +1,6 @@
-﻿*.exe
+﻿build/
+build*/
+*.exe
 *.exe.manifest
 Makefile
 CMakeCache.txt
@@ -7,6 +9,7 @@ Testing/
 cmake_install.cmake
 qtcsettings.cmake
 .cmake/
-BrickBreaker_autogen/
+*_autogen/
 .qt/
 .qtc_clangd/
+.qtcreator/
