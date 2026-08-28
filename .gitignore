@@ -13,3 +13,5 @@ qtcsettings.cmake
 .qt/
 .qtc_clangd/
 .qtcreator/
+CMakeCache.txt
+CMakeCache.txt.prev
