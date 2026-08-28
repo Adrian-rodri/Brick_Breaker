@@ -12,11 +12,13 @@ PantallaMenuPrincipal::PantallaMenuPrincipal(QWidget *parent):QWidget(parent){
 
 void PantallaMenuPrincipal::cargarUI(){
     this->setMinimumSize(800,600);
-    this->setStyleSheet("background-color: "+COLORFONDO+";");
+    this->setStyleSheet("background-color: black;");
 
     QVBoxLayout *layoutPrincipal=new QVBoxLayout(this);
 
     QWidget *contenedorMenu=new QWidget();
+    contenedorMenu->setStyleSheet("border-radius: 10px;"
+                                  "background-color: #1e1e1e;");
     contenedorMenu->setFixedSize(300,450);
 
     QVBoxLayout *layoutMenu=new QVBoxLayout(contenedorMenu);
@@ -30,18 +32,19 @@ void PantallaMenuPrincipal::cargarUI(){
 
     lblTitulo->setAlignment(Qt::AlignCenter);
 
-    lblTitulo->setStyleSheet(
-        "font-size: 40px;"
-        "font-weight: bold;"
-        "color: "+COLORFONT+";");
+    lblTitulo->setStyleSheet("font-size: 50px;"
+                             "color : "+COLORFONT+";"
+                                           "font-family: 'Gill Sans MT Condensed';"
+                                           "background-color: transparent;");
 
     QString estiloBotones=
         "QPushButton {"
-        " background-color: "+COLORBOTON+";"
+        "background-color: transparent;"
         "color: "+COLORFONT+";"
         "font-size: 20px;"
         "font-weight: bold;"
         "border-radius: 10px;"
+        "border: 2px solid white;"
         "padding: 15px;"
         "}"
         "QPushButton:hover {"

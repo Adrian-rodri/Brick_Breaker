@@ -3,6 +3,7 @@
 
 #include <QMainWindow>
 #include <QStackedWidget>
+#include <QIcon>
 
 #include "pantallalogin.h"
 

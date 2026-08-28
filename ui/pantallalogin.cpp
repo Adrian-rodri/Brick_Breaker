@@ -4,6 +4,7 @@
 #include <QGroupBox>
 #include <QFormLayout>
 #include <string>
+#include <QPixmap>
 
 #include "pantallalogin.h"
 #include "ventanaprincipal.h"
@@ -22,7 +23,7 @@ void PantallaLogin::cargarUI(){
     QVBoxLayout *layoutPrincipal = new QVBoxLayout(this);
 
     QGroupBox *boxLogin = new QGroupBox("Log In");
-    boxLogin->setFixedSize(400,350);
+    boxLogin->setFixedSize(400,380);
     boxLogin->setStyleSheet("QGroupBox{"
                             "   background-color:"+COLORSUBFONDO+";"
                             "   color: white;"
@@ -37,12 +38,12 @@ void PantallaLogin::cargarUI(){
 
     QVBoxLayout *layoutBox= new QVBoxLayout(boxLogin);
 
-    titulo= new QLabel("Brick\nBreaker");
+    titulo= new QLabel("");
+    QPixmap logo(":/assets/titulo.png");
+    titulo->setPixmap(logo.scaled(380,200,Qt::KeepAspectRatio,Qt::SmoothTransformation));
     titulo->setAlignment(Qt::AlignCenter);
-    titulo->setStyleSheet("font-size: 80px;"
-                          "color : "+COLORFONT+";"
-                          "font-family: 'Gill Sans MT Condensed';"
-                          "background-color: transparent;");
+    titulo->setStyleSheet("background-color: transparent; "
+                          "margin-bottom: 5px;");
     QFormLayout *layoutForm = new QFormLayout();
 
     QString estiloLblForm= "font-family: 'Consolas';"

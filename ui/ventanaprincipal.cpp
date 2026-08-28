@@ -6,6 +6,7 @@
 #include "constantes.h"
 
 VentanaPrincipal::VentanaPrincipal(QWidget *parent) : QMainWindow(parent) {
+    this->setWindowIcon(QIcon(":/assets/icono.png"));
     stackWidget= new QStackedWidget(this);
     setCentralWidget(stackWidget);
 

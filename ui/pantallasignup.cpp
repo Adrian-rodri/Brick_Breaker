@@ -5,6 +5,7 @@
 #include <QVBoxLayout>
 #include <QFormLayout>
 #include <QGroupBox>
+#include <QPixmap>
 
 PantallaSignUp::PantallaSignUp(QWidget* parent) : QWidget(parent){
     cargarUi();
@@ -14,7 +15,7 @@ void PantallaSignUp::cargarUi(){
     QVBoxLayout* layoutPrincipal= new QVBoxLayout(this);
 
     QGroupBox* boxCrear= new QGroupBox("Sign Up");
-    boxCrear->setFixedSize(400,350);
+    boxCrear->setFixedSize(400,380);
     boxCrear->setStyleSheet("QGroupBox{"
                             "   background-color:"+COLORSUBFONDO+";"
                             "   color: white;"
@@ -29,11 +30,12 @@ void PantallaSignUp::cargarUi(){
     QVBoxLayout* layoutBox= new QVBoxLayout();
     boxCrear->setLayout(layoutBox);
 
-    titulo= new QLabel("Brick\nBreaker");
-    titulo->setStyleSheet("font-size: 60px;"
-                          "color : "+COLORFONT+";"
-                          "font-family: 'Gill Sans MT Condensed';"
-                          "background-color: transparent;");
+    titulo= new QLabel("");
+    QPixmap logo(":/assets/titulo.png");
+    titulo->setPixmap(logo.scaled(310,130,Qt::KeepAspectRatio,Qt::SmoothTransformation));
+    titulo->setAlignment(Qt::AlignCenter);
+    titulo->setStyleSheet("background-color: transparent; "
+                          "margin-bottom: 5px;");
     titulo->setAlignment(Qt::AlignCenter);
 
     QFormLayout* layoutForm= new QFormLayout();

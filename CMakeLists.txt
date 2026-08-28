@@ -11,10 +11,12 @@ include_directories(
     ui
     utils
 )
+set(CMAKE_AUTORCC ON)
 
 qt_add_executable(BrickBreaker
     WIN32 MACOSX_BUNDLE
     main.cpp
+    recursos.qrc
     ui/mainwindow.cpp
     ui/mainwindow.h
     ui/mainwindow.ui
