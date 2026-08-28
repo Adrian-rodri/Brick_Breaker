@@ -3,12 +3,15 @@
 #include <QVBoxLayout>
 #include <QGroupBox>
 #include <QFormLayout>
+#include <string>
 
 #include "pantallalogin.h"
 #include "ventanaprincipal.h"
 #include "constantes.h"
 #include "pantallasignup.h"
+#include "pantallamenuprincipal.h"
 
+using namespace std;
 void verPassword();
 PantallaLogin::PantallaLogin(QWidget *parent) : QWidget(parent) {
     cargarUI();
@@ -78,8 +81,16 @@ void PantallaLogin::cargarUI(){
     layoutPassH->addWidget(linePass);
     layoutPassH->addWidget(btnVerPass);
 
+    lblStatus= new QLabel("");
+    lblStatus->setStyleSheet("color: red;"
+                             "font-size: 10px;"
+                             "font-family: 'Console';"
+                             "background-color: transparent;"
+                             "padding:0px;");
+
     layoutForm->addRow(lblUser,lineUser);
     layoutForm->addRow(lblPass,layoutPassH);
+    layoutForm->addRow(lblStatus);
 
     btnLogin = new QPushButton("Log In");
     btnLogin->setStyleSheet("QPushButton{"
@@ -135,6 +146,7 @@ void PantallaLogin::cargarUI(){
     //connects
     connect(btnVerPass,&QPushButton::clicked,this,&PantallaLogin::verPassword);
     connect(btnCrear,&QPushButton::clicked,this,&PantallaLogin::irACrearCuenta);
+    connect(btnLogin,&QPushButton::clicked,this,&PantallaLogin::solicitarLogin);
 }
 void PantallaLogin::verPassword(){
     if(linePass->echoMode()==QLineEdit::Password){
@@ -145,8 +157,20 @@ void PantallaLogin::verPassword(){
         btnVerPass->setText("👁");
     }
 }
-void login(){
+void PantallaLogin::solicitarLogin(){
+    string txtUser= lineUser->text().toStdString();
+    string txtPass= linePass->text().toStdString();
 
+    if(txtUser.empty() || txtPass.empty()){
+        lblStatus->setText("Llene todos los campos.");
+
+    }else if(txtUser=="admin" && txtPass=="1234"){
+        VentanaPrincipal* ventana=(VentanaPrincipal*)this->window();
+        PantallaMenuPrincipal* menuPrincipal= new PantallaMenuPrincipal();
+        ventana->cambiarPantalla(menuPrincipal);
+    }else{
+        lblStatus->setText("Credenciales Incorrectas.");
+    }
 }
 void PantallaLogin::irACrearCuenta(){
     VentanaPrincipal* principal=(VentanaPrincipal*)this->window();

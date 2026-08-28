@@ -28,6 +28,8 @@ qt_add_executable(BrickBreaker
     model/usuario.cpp
     core/gestorusuario.h
     core/gestorusuario.cpp
+    ui/pantallajuego.h ui/pantallajuego.cpp
+
 )
 
 target_link_libraries(BrickBreaker

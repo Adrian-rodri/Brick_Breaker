@@ -15,6 +15,7 @@ public:
 
 private:
     QLabel *titulo;
+    QLabel* lblStatus;
     QLineEdit *lineUser;
     QLineEdit *linePass;
     QPushButton *btnVerPass;
@@ -22,7 +23,7 @@ private:
     QPushButton *btnCrear;
     void cargarUI();
     void verPassword();
-    void login();
+    void solicitarLogin();
     void irACrearCuenta();
 };
 #endif // PANTALLALOGIN_H
