@@ -37,7 +37,7 @@ void PantallaMenuPrincipal::cargarUI(){
 
     QString estiloBotones=
         "QPushButton {"
-        " background-color: #"+COLORBOTON+";"
+        " background-color: "+COLORBOTON+";"
         "color: "+COLORFONT+";"
         "font-size: 20px;"
         "font-weight: bold;"
@@ -45,10 +45,10 @@ void PantallaMenuPrincipal::cargarUI(){
         "padding: 15px;"
         "}"
         "QPushButton:hover {"
-        "background-color: #"+COLORBOTONHOVER+";"
+        "background-color: "+COLORBOTONHOVER+";"
         "}"
         "QPushButton:pressed {"
-        "background-color: #"+COLORBOTONPRESSED+";"
+        "background-color: "+COLORBOTONPRESSED+";"
         "}";
 
     btnJugar->setStyleSheet(estiloBotones);
