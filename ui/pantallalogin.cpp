@@ -40,7 +40,7 @@ void PantallaLogin::cargarUI(){
 
     titulo= new QLabel("");
     QPixmap logo(":/assets/titulo.png");
-    titulo->setPixmap(logo.scaled(380,200,Qt::KeepAspectRatio,Qt::SmoothTransformation));
+    titulo->setPixmap(logo.scaled(360,180,Qt::KeepAspectRatio,Qt::SmoothTransformation));
     titulo->setAlignment(Qt::AlignCenter);
     titulo->setStyleSheet("background-color: transparent; "
                           "margin-bottom: 5px;");
