@@ -32,6 +32,12 @@ qt_add_executable(BrickBreaker
     core/gestorusuario.h
     core/gestorusuario.cpp
     ui/pantallajuego.h ui/pantallajuego.cpp
+    model/bloque.h model/bloque.cpp
+    model/pelota.h model/pelota.cpp
+    model/powerup.h model/powerup.cpp
+    model/nivel.h model/nivel.cpp
+    model/plataforma.h model/plataforma.cpp
+    core/partida.h core/partida.cpp
 
 )
 

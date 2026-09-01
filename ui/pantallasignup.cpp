@@ -89,6 +89,12 @@ void PantallaSignUp::cargarUi(){
     lineConfirm->setEchoMode(QLineEdit::Password);
 
     lblStatus=  new QLabel("");
+    lblStatus->setStyleSheet("color: red;"
+                             "font-size: 10px;"
+                             "font-family: 'Console';"
+                             "background-color: transparent;"
+                             "padding:0px;");
+
     layoutForm->addRow(lblNombre,lineNombre);
     layoutForm->addRow(lblUser,lineUser);
     layoutForm->addRow(lblPass,layoutPass);
