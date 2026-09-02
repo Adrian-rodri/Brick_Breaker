@@ -9,7 +9,7 @@ Bloque::Bloque(TIPO_BLOQUE tipoBloque,qreal posX, qreal posY)
     golpesRestantes= getGolpes();
     setPos(10+(posX*BRICK_ANCHO),6+(posY*BRICK_ALTO));
     setBrush(getColor());
-    setPen(QPen(QColor(35, 61, 77)));
+    setPen(QPen(QColor(255, 255, 255)));
 }
 void Bloque::paint(QPainter* painter, const QStyleOptionGraphicsItem* option, QWidget* widget){
     painter->setBrush(brush());
@@ -65,9 +65,9 @@ QBrush Bloque::getColor() const{
         break;
     }case REFORZADO:{
         if(golpesRestantes==2){
-            color= QBrush(QColor(255,140,0));
+            color= QBrush(QColor(255, 128, 199));
         }else{
-            color= QBrush(QColor(204,58,99));
+            color= QBrush(QColor(146, 238, 255));
         }
         break;
     }case INDESTRUCTIBLE:{
