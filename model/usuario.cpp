@@ -2,18 +2,18 @@
 #include <string>
 using namespace std;
 
-Usuario::Usuario(string& nombre, string& username, string& passwordHash) {
+Usuario::Usuario(string& nombre, string& username, string& password) {
     this->nombre=nombre;
     this->username=username;
-    this->passwordHash=passwordHash;
+    this->password=password;
     this->puntos=0;
     this->mejorTiempo=0;
 }
 //constructor para reconstruir el user (login)
-Usuario::Usuario(string& nombre, string& username, string& passwordPlano,int puntos,int mejorTiempo){
+Usuario::Usuario(string& nombre, string& username, string& password,int puntos,int mejorTiempo){
     this->nombre=nombre;
     this->username=username;
-    this->passwordHash=to_string(hash<string>{}(passwordPlano + username));
+    this->password=password;
     this->puntos=puntos;
     this->mejorTiempo=mejorTiempo;
 }
@@ -31,8 +31,8 @@ const string& Usuario::getNombre() const{
 const string& Usuario::getUsername() const{
     return username;
 }
-const string& Usuario::getPasswordHash() const{
-    return passwordHash;
+const string& Usuario::getPassword() const{
+    return password;
 }
 int Usuario::getPuntos() const{
     return puntos;
@@ -50,8 +50,8 @@ void Usuario::setNombre(string &nombre){
 void Usuario::setUsername(string& username){
     this->username=username;
 }
-void Usuario::setPasswordHash(string& passwordHash){
-    this->passwordHash=passwordHash;
+void Usuario::setPassword(string& password){
+    this->password=password;
 }
 void Usuario::setPuntos(int puntos){
     this->puntos=puntos;

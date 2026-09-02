@@ -6,6 +6,8 @@
 #include <QBoxLayout>
 #include <QLabel>
 
+#include "partida.h"
+
 class PantallaMenuPrincipal : public QWidget
 {
     Q_OBJECT
@@ -22,6 +24,8 @@ private:
     QPushButton *btnSalir;
 
     QVBoxLayout *layoutPrincipal;
+
+    Partida *partida;
     void cargarUI();
     void irAlJuego();
     void irAOpciones();

@@ -1,3 +1,8 @@
 #include "partida.h"
 
-Partida::Partida() {}
+Partida::Partida(Nivel* nivelActual) {
+    this->nivelActual=nivelActual;
+}
+Nivel* Partida::getNivel(){
+    return nivelActual;
+}

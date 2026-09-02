@@ -3,7 +3,6 @@
 
 #include <fstream>
 #include <filesystem>
-#include <functional>
 
 using namespace std;
 //Se van a usar archivos .bbk para guardar los datos de los users
@@ -44,8 +43,7 @@ bool GestorUsuario::validarLogin(const string &username,const string &passwordIn
     if(perfil==nullptr){
         return false;
     }
-    string hashIntento= to_string(hash<string>{}(passwordIntento+username));
-    bool coincide= (hashIntento==perfil->getPasswordHash());
+    bool coincide= (passwordIntento==perfil->getPassword());
     delete perfil;
     return coincide;
 }
@@ -111,7 +109,7 @@ void GestorUsuario::crearArchivosUsuario(Usuario &usuario){//crear los archivos 
     if(archivo.is_open()){
         string nombre= usuario.getNombre();
         string username= usuario.getUsername();
-        string password= usuario.getPasswordHash();
+        string password= usuario.getPassword();
         int puntos= usuario.getPuntos();
         int mejorTiempo= usuario.getMejorTiempo();
 

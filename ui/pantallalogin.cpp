@@ -19,7 +19,7 @@ PantallaLogin::PantallaLogin(QWidget *parent) : QWidget(parent) {
 }
 
 void PantallaLogin::cargarUI(){
-    this->setMinimumSize(800,600);
+    this->setMinimumSize(900,600);
     QVBoxLayout *layoutPrincipal = new QVBoxLayout(this);
 
     QGroupBox *boxLogin = new QGroupBox("Log In");

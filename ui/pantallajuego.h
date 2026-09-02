@@ -10,15 +10,18 @@
 #include <QKeyEvent>
 #include <QVector>
 
+#include "partida.h"
+
 class PantallaJuego : public QWidget
 {
     Q_OBJECT
 public:
-    explicit PantallaJuego(QWidget* parent = nullptr);
+    explicit PantallaJuego(Partida* partidaActual,QWidget* parent = nullptr);
     ~PantallaJuego() override;
 private:
     QGraphicsScene* escena;
     QGraphicsView* vista;
+    Partida* partidaActual;
 
 };
 
