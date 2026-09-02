@@ -1,0 +1,25 @@
+    #ifndef BLOQUE_H
+    #define BLOQUE_H
+
+    #include <QGraphicsRectItem>
+    enum TIPO_BLOQUE{
+        SIMPLE,REFORZADO,INDESTRUCTIBLE
+    };
+
+    class Bloque : public QGraphicsRectItem
+    {
+    private:
+        TIPO_BLOQUE tipoBloque;
+        int golpesRestantes;
+
+    public:
+        Bloque(TIPO_BLOQUE tipoBloque,qreal posX, qreal posY);
+        void recibirGolpe();
+        bool estaRoto();
+        TIPO_BLOQUE getTipoBloque() const;
+        int getPuntos() const;
+        int getGolpes() const;
+        QBrush getColor() const;
+    };
+
+    #endif // BLOQUE_H
