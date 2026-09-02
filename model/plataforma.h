@@ -1,6 +1,7 @@
 #ifndef PLATAFORMA_H
 #define PLATAFORMA_H
 
+
 class Plataforma
 {
 public:

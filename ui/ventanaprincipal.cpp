@@ -19,6 +19,7 @@ VentanaPrincipal::VentanaPrincipal(QWidget *parent) : QMainWindow(parent) {
     gestorUsers= new GestorUsuario();
 
     cambiarPantalla(pantallaLogin);
+    this->showMaximized();
 }
 void VentanaPrincipal::cambiarPantalla(QWidget *pantalla){
     stackWidget->addWidget(pantalla);

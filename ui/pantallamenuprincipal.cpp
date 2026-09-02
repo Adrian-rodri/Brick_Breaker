@@ -2,6 +2,8 @@
 #include "constantes.h"
 #include "ventanaprincipal.h"
 #include "pantallajuego.h"
+#include "partida.h"
+#include "nivel.h"
 
 #include <QPushButton>
 #include <QVBoxLayout>
@@ -85,7 +87,8 @@ void PantallaMenuPrincipal::cargarUI(){
 
 void PantallaMenuPrincipal::irAlJuego(){
     VentanaPrincipal* ventana=(VentanaPrincipal*)this->window();
-    PantallaJuego *pantallaJuego= new PantallaJuego();
+    partida= new Partida(new Nivel(1));
+    PantallaJuego *pantallaJuego= new PantallaJuego(partida);
     ventana->cambiarPantalla(pantallaJuego);
 }
 
