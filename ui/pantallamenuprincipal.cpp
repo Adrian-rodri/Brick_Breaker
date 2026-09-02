@@ -87,7 +87,7 @@ void PantallaMenuPrincipal::cargarUI(){
 
 void PantallaMenuPrincipal::irAlJuego(){
     VentanaPrincipal* ventana=(VentanaPrincipal*)this->window();
-    partida= new Partida(new Nivel(1));
+    partida= new Partida(new Nivel(2));
     PantallaJuego *pantallaJuego= new PantallaJuego(partida);
     ventana->cambiarPantalla(pantallaJuego);
 }

@@ -6,7 +6,7 @@
 PantallaJuego::PantallaJuego(Partida* partidaActual,QWidget* parent)
     : QWidget(parent){
     this->partidaActual=partidaActual;
-    this->setStyleSheet("background-color: #FE7F2D;");
+    this->setStyleSheet("background-color: #000000;");
     QVBoxLayout* layoutVertical= new QVBoxLayout(this);
     QHBoxLayout* layoutCentro= new QHBoxLayout();
 

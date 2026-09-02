@@ -7,7 +7,7 @@ Nivel::Nivel(int numNivel) {
 void Nivel::cargarMatriz(){
     switch(numNivel){
     case 1:
-        filas=10;
+        filas=5;
         columnas=13;
         matrizBloques= new Bloque**[filas];
         for(int i=0;i<filas;i++){
@@ -18,6 +18,36 @@ void Nivel::cargarMatriz(){
         }
         break;
     case 2:
+        filas=7;
+        columnas=13;
+        matrizBloques= new Bloque**[filas];
+        for(int i=0;i<filas;i++){//Llenar de bloques simples
+            matrizBloques[i]= new Bloque*[columnas];
+            for(int j=0;j<columnas;j++){
+                matrizBloques[i][j]= new Bloque(SIMPLE,j,i);
+            }
+        }
+        //Poner bloques reforzados
+        for(int i=0;i<columnas;i++){
+            if(!(i%2==0)){
+                matrizBloques[5][i]= new Bloque(REFORZADO,i,5);
+            }else{
+                matrizBloques[6][i]= new Bloque(REFORZADO,i,6);
+            }
+        }
+        for(int i=0;i<filas;i++){
+            if(i%2==0){
+                matrizBloques[i][6]= new Bloque(REFORZADO,6,i);
+            }
+        }
+        matrizBloques[1][5]= new Bloque(REFORZADO,5,1);
+        matrizBloques[1][7]= new Bloque(REFORZADO,7,1);
+        matrizBloques[2][4]= new Bloque(REFORZADO,4,2);
+        matrizBloques[2][8]= new Bloque(REFORZADO,8,2);
+        matrizBloques[3][3]= new Bloque(REFORZADO,3,3);
+        matrizBloques[3][9]= new Bloque(REFORZADO,9,3);
+        matrizBloques[4][2]= new Bloque(REFORZADO,2,4);
+        matrizBloques[4][10]= new Bloque(REFORZADO,10,4);
         break;
     case 3:
         break;
