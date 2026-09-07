@@ -12,4 +12,8 @@ const QString COLORBOTONPRESSED= "#2E4540";
 
 const int BRICK_ANCHO=60;
 const int BRICK_ALTO=30;
+const int PLATAFORMA_ANCHO=20;
+const int PLATAFORMA_ALTO=10;
+
+const int LIMITE_PANTALLA=800;
 #endif // CONSTANTES_H
