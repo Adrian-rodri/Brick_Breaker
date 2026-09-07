@@ -16,14 +16,17 @@ public:
     ~PantallaMenuPrincipal();
 
 private:
-    QLabel *lblTitulo;
+    QLabel *titulo;
     QPushButton *btnJugar;
-    QPushButton *btnInstrucciones;
     QPushButton *btnNiveles;
     QPushButton *btnRecords;
     QPushButton *btnSalir;
+    QPushButton *btnAyuda;
+    QPushButton *btnLogros;
+    QPushButton *btnOpciones;
 
     QVBoxLayout *layoutPrincipal;
+    QHBoxLayout *layoutMiniBtns;
 
     Partida *partida;
     void cargarUI();
