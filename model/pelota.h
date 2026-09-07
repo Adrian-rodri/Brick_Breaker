@@ -1,10 +1,21 @@
 #ifndef PELOTA_H
 #define PELOTA_H
 
-class Pelota
+#include <QGraphicsEllipseItem>
+class Pelota : QGraphicsEllipseItem
 {
+private:
+    qreal velocidadX;
+    qreal velocidadY;
 public:
-    Pelota();
+    Pelota(qreal posX, qreal posY, qreal diametro);
+    void mover();
+    void setVelocidad(qreal velX,qreal velY);
+
+    qreal getVelocidadX()const;
+    qreal getVelocidadY()const;
+    void invertirVelocidadX();
+    void invertirVelocidadY();
 };
 
 #endif // PELOTA_H
