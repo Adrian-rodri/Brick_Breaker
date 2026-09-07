@@ -15,31 +15,30 @@ PantallaMenuPrincipal::PantallaMenuPrincipal(QWidget *parent):QWidget(parent){
 }
 
 void PantallaMenuPrincipal::cargarUI(){
-    this->setMinimumSize(800,600);
+    this->setMinimumSize(600,600);
     this->setStyleSheet("background-color: black;");
 
     QVBoxLayout *layoutPrincipal=new QVBoxLayout(this);
-
     QWidget *contenedorMenu=new QWidget();
     contenedorMenu->setStyleSheet("border-radius: 10px;"
-                                  "background-color: #1e1e1e;");
-    contenedorMenu->setFixedSize(300,450);
+                                  "background-color: transparent;");
+    contenedorMenu->setFixedSize(500,600);
 
     QVBoxLayout *layoutMenu=new QVBoxLayout(contenedorMenu);
 
-    lblTitulo=new QLabel("BRICK\nBREAKER", this);
+    titulo= new QLabel("");
+    QPixmap logo(":/assets/titulo.png");
+    titulo->setPixmap(logo.scaled(360,180,Qt::KeepAspectRatio,Qt::SmoothTransformation));
+    titulo->setAlignment(Qt::AlignCenter);
+    titulo->setStyleSheet("background-color: transparent; "
+                          "margin-bottom: 5px;");
     btnJugar=new QPushButton("Jugar",this);
-    btnInstrucciones=new QPushButton("Opciones",this);
     btnNiveles=new QPushButton("Niveles",this);
     btnRecords=new QPushButton("Records",this);
     btnSalir=new QPushButton("Salir ",this);
-
-    lblTitulo->setAlignment(Qt::AlignCenter);
-
-    lblTitulo->setStyleSheet("font-size: 50px;"
-                             "color : "+COLORFONT+";"
-                                           "font-family: 'Gill Sans MT Condensed';"
-                                           "background-color: transparent;");
+    btnAyuda=new QPushButton("Ayuda ",this);
+    btnLogros=new QPushButton("Logros ",this);
+    btnOpciones=new QPushButton("Opciones",this);
 
     QString estiloBotones=
         "QPushButton {"
@@ -59,24 +58,42 @@ void PantallaMenuPrincipal::cargarUI(){
         "}";
 
     btnJugar->setStyleSheet(estiloBotones);
-    btnInstrucciones->setStyleSheet(estiloBotones);
     btnNiveles->setStyleSheet(estiloBotones);
     btnRecords->setStyleSheet(estiloBotones);
     btnSalir->setStyleSheet(estiloBotones);
+    btnAyuda->setStyleSheet(estiloBotones);
+    btnLogros->setStyleSheet(estiloBotones);
+    btnOpciones->setStyleSheet(estiloBotones);
 
-    layoutMenu->addWidget(lblTitulo);
-    layoutMenu->addWidget(btnJugar);
-    layoutMenu->addWidget(btnInstrucciones);
-    layoutMenu->addWidget(btnNiveles);
-    layoutMenu->addWidget(btnRecords);
-    layoutMenu->addWidget(btnSalir);
-    layoutMenu->addStretch();
+    btnJugar->setFixedSize(200, 60);
+    btnNiveles->setFixedSize(200, 60);
+    btnRecords->setFixedSize(200, 60);
+    btnSalir->setFixedSize(200, 60);
+    btnAyuda->setFixedSize(50,50);
+    btnLogros->setFixedSize(50,50);
+    btnOpciones->setFixedSize(50, 50);
+
+    layoutMenu->addWidget(titulo);
+    layoutMenu->addWidget(btnJugar, 0, Qt::AlignHCenter);
+    layoutMenu->addWidget(btnNiveles, 0, Qt::AlignHCenter);
+    layoutMenu->addWidget(btnRecords, 0, Qt::AlignHCenter);
+    layoutMenu->addWidget(btnSalir, 0, Qt::AlignHCenter);
+
+    layoutMiniBtns=new QHBoxLayout();
+    layoutMiniBtns->setAlignment(Qt::AlignHCenter);
+    layoutMiniBtns->setSpacing(15);
+
+    layoutMiniBtns->addWidget(btnAyuda);
+    layoutMiniBtns->addWidget(btnLogros);
+    layoutMiniBtns->addWidget(btnOpciones);
+
+    layoutMenu->addLayout(layoutMiniBtns);
 
     layoutPrincipal->addStretch();
-
     QHBoxLayout *layoutCentrado=new QHBoxLayout();
     layoutCentrado->addStretch();
     layoutCentrado->addWidget(contenedorMenu);
+
     layoutCentrado->addStretch();
 
     layoutPrincipal->addLayout(layoutCentrado);
