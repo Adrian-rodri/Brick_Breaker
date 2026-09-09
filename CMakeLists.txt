@@ -39,6 +39,7 @@ qt_add_executable(BrickBreaker
     model/plataforma.h model/plataforma.cpp
     core/partida.h core/partida.cpp
 
+
 )
 
 target_link_libraries(BrickBreaker

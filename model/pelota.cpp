@@ -2,24 +2,20 @@
 #include <QBrush>
 #include <QPen>
 
-Pelota::Pelota(qreal posX, qreal posY, qreal diametro): QGraphicsEllipseItem(0,0,diametro,diametro),
-    velocidadX(3),velocidadY(-3) {
-    setPos(posX,posY);
-    setBrush(QBrush(Qt::white));
-    setPen(QPen(Qt::black));
+Pelota::Pelota(int posX, int posY, int diametro){
+    this->posX=posX;
+    this->posY=posY;
+    this->diametro= diametro;
+    velocidadX=3;
+    velocidadY=-3;
 }
 void Pelota::mover(){
-    setPos(x()+velocidadX,y()+velocidadX);
+    posX+=velocidadX;
+    posY+=velocidadY;
 }
-void Pelota::setVelocidad(qreal velX, qreal velY){
+void Pelota::setVelocidad(int velX, int velY){
     velocidadX= velX;
     velocidadY= velY;
-}
-qreal Pelota::getVelocidadX() const{
-    return velocidadX;
-}
-qreal Pelota::getVelocidadY() const{
-    return velocidadY;
 }
 void Pelota::invertirVelocidadX(){
     velocidadX= -velocidadX;
@@ -27,3 +23,24 @@ void Pelota::invertirVelocidadX(){
 void Pelota::invertirVelocidadY(){
     velocidadY= -velocidadY;
 }
+void Pelota::setPosicion(int nuevaX, int nuevaY) {
+    posX=nuevaX;
+    posY= nuevaY;
+}
+//getters
+int Pelota::getX()const {
+    return posX;
+}
+int Pelota::getY()const{
+    return posY;
+}
+int Pelota::getDiametro() const{
+    return diametro;
+}
+int Pelota::getVelocidadX() const{
+    return velocidadX;
+}
+int Pelota::getVelocidadY() const{
+    return velocidadY;
+}
+

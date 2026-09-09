@@ -1,19 +1,49 @@
 #include "plataforma.h"
 #include "constantes.h"
-#include <QBrush>
-#include <QPen>
-//cambiar herencia a normal, redibujando los items
-Plataforma::Plataforma(qreal posX, qreal posY):QGraphicsRectItem(0,0,PLATAFORMA_ANCHO,PLATAFORMA_ALTO),
-    velocidadMovimiento(20){
-    setPos(posX,posY);
-    setBrush(QBrush(Qt::white));
-    setPen(QPen(Qt::black));
+
+Plataforma::Plataforma(int posX, int posY, int _ancho, int _alto){
+    this->posX= posX;
+    this->posY= posY;
+    ancho=_ancho;
+    alto=_alto;
+    velocidad= 7;
 }
+
 void Plataforma::moverIzquierda(){
-    qreal nuevaX= x()-velocidadMovimiento;
-    if(nuevaX>=LIMITE_PANTALLA){
-        setPos(LIMITE_PANTALLA,y());
-    }else{
-        setPos(nuevaX,y());
+    posX-= velocidad;
+    if(posX<0){
+        posX=0;
     }
+}
+
+void Plataforma::moverDerecha(){
+    posX+= velocidad;
+    if((posX+ancho)>LIMITE_PANTALLA){
+        posX= LIMITE_PANTALLA -ancho;
+    }
+}
+
+void Plataforma::setAncho(int nuevoAncho){
+    ancho= nuevoAncho;
+}
+
+void Plataforma::setPosicion(int nuevaX, int nuevaY) {
+    posX= nuevaX;
+    posY= nuevaY;
+}
+
+int Plataforma::getX() const {
+    return posX;
+}
+
+int Plataforma::getY() const {
+    return posY;
+}
+
+int Plataforma::getAncho() const {
+    return ancho;
+}
+
+int Plataforma::getAlto() const {
+    return alto;
 }

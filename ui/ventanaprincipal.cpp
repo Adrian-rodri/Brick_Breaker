@@ -22,8 +22,15 @@ VentanaPrincipal::VentanaPrincipal(QWidget *parent) : QMainWindow(parent) {
     this->showMaximized();
 }
 void VentanaPrincipal::cambiarPantalla(QWidget *pantalla){
+    QWidget* anterior= stackWidget->currentWidget();
+
     stackWidget->addWidget(pantalla);
     stackWidget->setCurrentWidget(pantalla);
+
+    if(anterior != nullptr){
+        stackWidget->removeWidget(anterior);
+        anterior->deleteLater();
+    }
 }
 //destructor
 VentanaPrincipal::~VentanaPrincipal(){}

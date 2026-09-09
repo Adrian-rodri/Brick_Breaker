@@ -1,29 +1,26 @@
 #ifndef BLOQUE_H
 #define BLOQUE_H
-
-#include <QGraphicsRectItem>
-#include <QPainter>
-#include <QStyleOptionGraphicsItem>
+#include <QBrush>
 enum TIPO_BLOQUE{
     SIMPLE,REFORZADO,INDESTRUCTIBLE
 };
-
-class Bloque : public QGraphicsRectItem
+class Bloque
 {
 private:
-TIPO_BLOQUE tipoBloque;
-int golpesRestantes;
-
+    TIPO_BLOQUE tipoBloque;
+    int golpesRestantes;
+    int posX, posY;
 public:
-    Bloque(TIPO_BLOQUE tipoBloque,qreal posX, qreal posY);
+    Bloque(TIPO_BLOQUE tipoBloque,int posX, int posY);
+
+    int getPosX() const;
+    int getPosY() const;
+
     void recibirGolpe();
-    bool estaRoto();
+    bool estaRoto() const;
     TIPO_BLOQUE getTipoBloque() const;
-    int getPuntos() const;
+    int getPuntos();
     int getGolpes() const;
     QBrush getColor() const;
-
-    void paint(QPainter* painter, const QStyleOptionGraphicsItem* option, QWidget* widget = nullptr) override;
 };
-
 #endif // BLOQUE_H

@@ -54,6 +54,14 @@ void Nivel::cargarMatriz(){
     default:
         break;
     }
+    bloquesRestantes = 0;
+    for(int i=0;i<filas;i++){
+        for(int j=0;j<columnas;j++){
+            if(matrizBloques[i][j] != nullptr){
+                bloquesRestantes++;
+            }
+        }
+    }
 }
 //getters
 Bloque*** Nivel::getMatriz() const{
@@ -79,4 +87,21 @@ void Nivel::liberarMatriz(){
     }
     delete[] matrizBloques;
     matrizBloques=nullptr;
+}
+Nivel::~Nivel(){
+    if(matrizBloques !=nullptr){
+        liberarMatriz();
+    }
+}
+
+void Nivel::destruirBloque(int fila, int col){
+    if(matrizBloques[fila][col]!= nullptr){
+        delete matrizBloques[fila][col];
+        matrizBloques[fila][col]= nullptr;
+        bloquesRestantes--;
+    }
+}
+
+int Nivel::getBloquesRestantes() const{
+    return bloquesRestantes;
 }

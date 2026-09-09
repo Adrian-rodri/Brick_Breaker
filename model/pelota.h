@@ -1,19 +1,25 @@
 #ifndef PELOTA_H
 #define PELOTA_H
 
-#include <QGraphicsEllipseItem>
-class Pelota : QGraphicsEllipseItem
+class Pelota
 {
 private:
-    qreal velocidadX;
-    qreal velocidadY;
+    int posX, posY;
+    int diametro;
+    int velocidadX;
+    int velocidadY;
 public:
-    Pelota(qreal posX, qreal posY, qreal diametro);
+    Pelota(int posX, int posY, int diametro);
     void mover();
-    void setVelocidad(qreal velX,qreal velY);
+    void setVelocidad(int velX,int velY);
 
-    qreal getVelocidadX()const;
-    qreal getVelocidadY()const;
+    int getX() const;
+    int getY() const;
+    int getDiametro() const;
+    int getVelocidadX()const;
+    int getVelocidadY()const;
+
+    void setPosicion(int nuevaX, int nuevaY);
     void invertirVelocidadX();
     void invertirVelocidadY();
 };

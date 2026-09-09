@@ -12,6 +12,7 @@ private:
     int columnas;
 public:
     Nivel(int numNivel);
+    ~Nivel();
     void cargarMatriz();
     Bloque*** getMatriz() const;
     int getNumeroNivel() const;
@@ -19,6 +20,8 @@ public:
     int getColumnas()const;
 
     void liberarMatriz();
+    void destruirBloque(int fila, int col);
+    int getBloquesRestantes() const;
 };
 
 #endif // NIVEL_H
