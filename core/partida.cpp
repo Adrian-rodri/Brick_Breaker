@@ -2,7 +2,7 @@
 #include "constantes.h"
 
 Partida::Partida(int nivel) {
-    vidas= 3;
+    vidas= 300;
     puntaje= 0;
     numNivelAct= nivel;
     nivelActual= new Nivel(numNivelAct);

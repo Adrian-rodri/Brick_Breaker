@@ -13,7 +13,7 @@ class VentanaPrincipal : public QMainWindow
 {
     Q_OBJECT
 public:
-    explicit VentanaPrincipal(QWidget *parent=nullptr);
+     VentanaPrincipal(QWidget *parent=nullptr);
     ~VentanaPrincipal() override;
 
     GestorUsuario *gestorUsers;

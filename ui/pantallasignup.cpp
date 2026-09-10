@@ -180,7 +180,8 @@ void PantallaSignUp::crearNuevoUser(){
 }
 void PantallaSignUp::regresar(){
     VentanaPrincipal* ventana=(VentanaPrincipal*)this->window();
-    ventana->cambiarPantalla(ventana->pantallaLogin);
+    PantallaLogin* panta= new PantallaLogin();
+    ventana->cambiarPantalla(panta);
 }
 bool PantallaSignUp::coincidenContras(){
     string contra= linePass->text().toStdString();

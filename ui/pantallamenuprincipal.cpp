@@ -2,6 +2,7 @@
 #include "constantes.h"
 #include "ventanaprincipal.h"
 #include "pantallajuego.h"
+#include "pantallaselectorniveles.h"
 
 #include <QPushButton>
 #include <QVBoxLayout>
@@ -98,19 +99,18 @@ void PantallaMenuPrincipal::cargarUI(){
     layoutPrincipal->addStretch();
 
     connect(btnJugar,&QPushButton::clicked,this,&PantallaMenuPrincipal::irAlJuego);
+    connect(btnNiveles,&QPushButton::clicked,this,&PantallaMenuPrincipal::irANiveles);
 }
 
 void PantallaMenuPrincipal::irAlJuego(){
     VentanaPrincipal* ventana = (VentanaPrincipal*)this->window();
     PantallaJuego* pantallaJuego = new PantallaJuego(2);
-
-    // connect(pantallaJuego, &PantallaJuego::juegoTerminado, ventana,
-    //         [ventana](int puntaje, int nivel, bool gano){
-    //             PantallaMenuPrincipal* menu = new PantallaMenuPrincipal();
-    //             ventana->cambiarPantalla(menu);
-    //         });
-
     ventana->cambiarPantalla(pantallaJuego);
+}
+void PantallaMenuPrincipal::irANiveles(){
+    VentanaPrincipal* ventana= (VentanaPrincipal*)this->window();
+    PantallaSelectorNiveles* pantallaNiveles= new PantallaSelectorNiveles();
+    ventana->cambiarPantalla(pantallaNiveles);
 }
 
 PantallaMenuPrincipal::~PantallaMenuPrincipal(){

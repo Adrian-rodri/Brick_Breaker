@@ -16,6 +16,7 @@ public:
 
     void setAncho(int nuevoAncho);
     void setPosicion(int nuevaX, int nuevaY);
+    void setVelocidad(int nuevaVal);
 
     int getX()const;
     int getY() const;

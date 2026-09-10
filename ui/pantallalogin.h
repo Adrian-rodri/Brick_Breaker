@@ -10,7 +10,7 @@ class PantallaLogin : public QWidget
 {
     Q_OBJECT
 public:
-    explicit PantallaLogin(QWidget *parent=nullptr);
+     PantallaLogin(QWidget *parent=nullptr);
     ~PantallaLogin() override;
 
 private:

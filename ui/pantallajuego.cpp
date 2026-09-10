@@ -7,12 +7,14 @@
 #include <QBrush>
 #include <QPen>
 #include <QtMath>
-
+#include <iostream>
 PantallaJuego::PantallaJuego(int nivel, QWidget* parent)
     : QWidget(parent){
+    std::cout<<"Pr";
     partidaActual= new Partida(nivel);
     ptrBloques = nullptr;
     velocidad= 6.0+(nivel-1)*1.5;
+    partidaActual->getPlataforma()->setVelocidad(7 + (nivel - 1) * 2);
     cargarUi();
 }
 
@@ -45,6 +47,7 @@ void PantallaJuego::cargarUi(){
     escena= new QGraphicsScene(0, 0, LIMITE_PANTALLA, 480, this);
     vista= new QGraphicsView(escena, this);
     vista->setFocusPolicy(Qt::NoFocus);
+    vista->setStyleSheet("border: 2px solid white; background-color: #000000;");
 
     layoutCentro->addStretch();
     layoutCentro->addWidget(vista);
@@ -162,7 +165,9 @@ void PantallaJuego::dibujarPlataforma(){
 }
 void PantallaJuego::dibujarPelota(){
     Pelota* pelota= partidaActual->getPelota();
+
     itemPelota= escena->addEllipse(0,0,pelota->getDiametro(),pelota->getDiametro(),QPen(Qt::white), QBrush(Qt::white));
+
     itemPelota->setPos(pelota->getX(),pelota->getY());
 }
 void PantallaJuego::lanzarPelota(){
@@ -184,6 +189,8 @@ void PantallaJuego::keyPressEvent(QKeyEvent* event){
             esperando= false;
             lanzarPelota();
         }
+    }else if(event->key()==Qt::Key_Escape){
+        esperando=true;
     }
 }
 void PantallaJuego::keyReleaseEvent(QKeyEvent* event){
@@ -218,6 +225,7 @@ void PantallaJuego::actualizarJuego(){
 void PantallaJuego::actualizarPosiciones(){
     Plataforma* plat= partidaActual->getPlataforma();
     itemPlataforma->setPos(plat->getX(),plat->getY());
+
 
     Pelota* pelota= partidaActual->getPelota();
     itemPelota->setPos(pelota->getX(),pelota->getY());
@@ -273,8 +281,18 @@ void PantallaJuego::manejarColisiones(){
 
                 if(collisionX<collisionY){
                     pelota->invertirVelocidadX();
+                    if(rectPelota.center().x()<rectBloque.center().x()){
+                        pelota->setPosicion(rectBloque.left()-diametro, pelota->getY());
+                    }else{
+                        pelota->setPosicion(rectBloque.right(), pelota->getY());
+                    }
                 }else{
                     pelota->invertirVelocidadY();
+                    if (rectPelota.center().y() < rectBloque.center().y()) {
+                        pelota->setPosicion(pelota->getX(), rectBloque.top() - diametro);
+                    } else {
+                        pelota->setPosicion(pelota->getX(), rectBloque.bottom());
+                    }
                 }
                 return;
             }

@@ -12,7 +12,7 @@ class PantallaMenuPrincipal : public QWidget
 {
     Q_OBJECT
 public:
-    explicit PantallaMenuPrincipal(QWidget *parent=nullptr);
+     PantallaMenuPrincipal(QWidget *parent=nullptr);
     ~PantallaMenuPrincipal();
 
 private:
@@ -32,6 +32,7 @@ private:
     void cargarUI();
     void irAlJuego();
     void irAOpciones();
+    void irANiveles();
 };
 
 #endif // PANTALLAMENUPRINCIPAL_H

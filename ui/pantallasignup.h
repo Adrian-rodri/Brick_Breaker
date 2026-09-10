@@ -9,7 +9,7 @@ class PantallaSignUp: public QWidget
 {
     Q_OBJECT
 public:
-    explicit PantallaSignUp(QWidget *parent=nullptr);
+     PantallaSignUp(QWidget *parent=nullptr);
     ~PantallaSignUp() override;
 private:
 

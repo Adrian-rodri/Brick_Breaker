@@ -12,9 +12,6 @@ VentanaPrincipal::VentanaPrincipal(QWidget *parent) : QMainWindow(parent) {
 
     setStyleSheet("background-color: "+COLORFONDO+";");
 
-    /*
-     * Inicializar variables necesarias
-     * */
     pantallaLogin = new PantallaLogin(this);
     gestorUsers= new GestorUsuario();
 
