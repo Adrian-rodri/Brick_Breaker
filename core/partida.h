@@ -11,18 +11,25 @@ private:
     int numNivelAct;
     Nivel* nivelActual;
     Plataforma* plataforma;
-    Pelota* pelota;
+    Pelota** listaPelotas;
+    int cantidadPelotas;
+
 public:
     Partida(int nivel);
     ~Partida();
     void sumarPuntos(int puntos);
     void perderVida();
+    void ganarVida();
     bool estaTerminada();
     bool nivelCompletado();
     int getVidas();
     int getPuntaje();
     Nivel* getNivel() const;
     Plataforma* getPlataforma() const;
-    Pelota* getPelota() const;
+    Pelota** getPelotas() const;
+    int getCantidadPelotas() const;
+    void agregarPelotaExtra(int posX,int posY);
+    void eliminarPelota(int indice);
+    void liberarPelotas();
 };
 #endif // PARTIDA_H

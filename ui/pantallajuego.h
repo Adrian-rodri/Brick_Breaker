@@ -10,6 +10,7 @@
 #include <QLabel>
 
 #include "partida.h"
+#include "powerup.h"
 
 class PantallaJuego : public QWidget
 {
@@ -23,10 +24,15 @@ private:
     Partida* partidaActual;
     QGraphicsRectItem*** ptrBloques;
     QGraphicsRectItem* itemPlataforma;
-    QGraphicsEllipseItem* itemPelota;
+    QGraphicsEllipseItem** itemsPelotas;
+    PowerUp** ptrPowerUps;
+    QGraphicsRectItem** itemsPowerUps;
     double velocidad;
     QTimer* timerJuego;
     QElapsedTimer cronometro;
+    int cantidadPowerUps;
+    int contadorPlataformaGrande;
+    int anchoOriginalPlataforma;
 
     void actualizarJuego();
     void manejarFinDePartida();
@@ -36,8 +42,15 @@ private:
     bool esperando;
     void lanzarPelota();
     void manejarColisiones();
+    void manejarColisionesPelota(Pelota* pelota);
     void actualizarPosiciones();
-    void rebotarEnPlataforma();
+    void rebotarEnPlataforma(Pelota* pelota);
+
+    void intentarSoltarPowerUp(int x, int y);
+    void actualizarPowerUps();
+    void aplicarPowerUp(PowerUp* power);
+    void eliminarPowerUp(int indice);
+
 
     void keyPressEvent(QKeyEvent* event) override;
     void keyReleaseEvent(QKeyEvent* event) override;
@@ -60,7 +73,6 @@ private:
     void liberarBloques();
     void dibujarBloques();
     void dibujarPlataforma();
-    void dibujarPelota();
-
+    void dibujarPelotas();
 };
 #endif // PANTALLAJUEGO_H
