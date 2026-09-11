@@ -14,7 +14,7 @@ PantallaJuego::PantallaJuego(int nivel, QWidget* parent)
     partidaActual= new Partida(nivel);
     ptrBloques = nullptr;
     velocidad= 6.0+(nivel-1)*1.5;
-    partidaActual->getPlataforma()->setVelocidad(7 + (nivel - 1) * 2);
+    partidaActual->getPlataforma()->setVelocidad(7+(nivel-1)* 2);
     cargarUi();
 }
 
@@ -180,6 +180,9 @@ void PantallaJuego::lanzarPelota(){
     partidaActual->getPelota()->setVelocidad(velX,velY);
 }
 void PantallaJuego::keyPressEvent(QKeyEvent* event){
+    if(event->isAutoRepeat()){
+        return;
+    }
     if(event->key()==Qt::Key_Left || event->key()==Qt::Key_A){
         moverIzq= true;
     }else if(event->key()==Qt::Key_Right || event->key()== Qt::Key_D){
@@ -187,13 +190,20 @@ void PantallaJuego::keyPressEvent(QKeyEvent* event){
     }else if(event->key()==Qt::Key_W || event->key()==Qt::Key_Up || event->key()==Qt::Key_Space){
         if(esperando){
             esperando= false;
+            partidaActual->getPlataforma()->setAncho(PLATAFORMA_ANCHO);
             lanzarPelota();
         }
     }else if(event->key()==Qt::Key_Escape){
         esperando=true;
     }
+    if(event->key()==Qt::Key_P){
+        partidaActual->getPlataforma()->setAncho(partidaActual->getPlataforma()->getAncho()+6);
+    }
 }
 void PantallaJuego::keyReleaseEvent(QKeyEvent* event){
+    if(event->isAutoRepeat()){
+        return;
+    }
     if(event->key()== Qt::Key_Left || event->key()== Qt::Key_A){
         moverIzq=false;
     }else if(event->key()==Qt::Key_Right || event->key()==Qt::Key_D){
@@ -224,6 +234,7 @@ void PantallaJuego::actualizarJuego(){
 }
 void PantallaJuego::actualizarPosiciones(){
     Plataforma* plat= partidaActual->getPlataforma();
+    itemPlataforma->setRect(0, 0, plat->getAncho(), plat->getAlto());
     itemPlataforma->setPos(plat->getX(),plat->getY());
 
 

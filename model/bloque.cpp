@@ -34,7 +34,7 @@ int Bloque::getGolpes() const{
     case SIMPLE:{
         return 1;
     }case REFORZADO:{
-        return 2;
+        return 4;
     }case INDESTRUCTIBLE:{
         return -1;
     }
@@ -57,17 +57,27 @@ QBrush Bloque::getColor() const{
     QBrush color;
     switch(tipoBloque){
     case SIMPLE:{
-        color= QBrush(QColor(146, 238, 255));
+        color= QBrush(QColor(252, 173, 56));
         break;
     }case REFORZADO:{
-        if(golpesRestantes==2){
-            color= QBrush(QColor(255, 128, 199));
-        }else{
-            color= QBrush(QColor(146, 238, 255));
+        switch(golpesRestantes){
+        case 1:{
+            color= QBrush(QColor(252, 173, 56));
+            break;
+        }case 2:{
+            color= QBrush(QColor(235, 127, 49));
+            break;
+        }case 3:{
+            color= QBrush(QColor(228, 87, 66));
+            break;
+        }case 4:{
+            color= QBrush(QColor(151, 40, 40));
+            break;
+        }
         }
         break;
     }case INDESTRUCTIBLE:{
-        color= QBrush(Qt::gray);
+        color= QBrush(QColor(117, 125, 111));
         break;
     }
     }

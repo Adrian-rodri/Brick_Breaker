@@ -22,7 +22,7 @@ void Nivel::cargarMatriz(){
         columnas=13;
         matrizBloques= new Bloque**[filas];
 
-        // Arranca todo vacío
+        //todo vacío
         for(int i=0;i<filas;i++){
             matrizBloques[i]= new Bloque*[columnas];
             for(int j=0;j<columnas;j++){
@@ -30,27 +30,21 @@ void Nivel::cargarMatriz(){
             }
         }
 
-        // Torres reforzadas en los bordes (columnas 0,1 y 11,12)
+        //reforzados
         for(int i=0;i<filas;i++){
             matrizBloques[i][0]= new Bloque(REFORZADO,0,i);
             matrizBloques[i][1]= new Bloque(REFORZADO,1,i);
             matrizBloques[i][11]= new Bloque(REFORZADO,11,i);
             matrizBloques[i][12]= new Bloque(REFORZADO,12,i);
         }
-
-        // Muralla superior (fila 0) completa, simple
         for(int j=2;j<=10;j++){
             matrizBloques[0][j]= new Bloque(SIMPLE,j,0);
         }
-
-        // Segunda muralla (fila 1), con hueco central (portón)
         for(int j=2;j<=10;j++){
             if(j<5 || j>7){
                 matrizBloques[1][j]= new Bloque(SIMPLE,j,1);
             }
         }
-
-        // Bloques de relleno interior en filas 2 a 4, en zigzag
         for(int i=2;i<=4;i++){
             for(int j=2;j<=10;j++){
                 if((i+j)%2==0){
@@ -59,19 +53,14 @@ void Nivel::cargarMatriz(){
             }
         }
 
-        // Guardias reforzados flanqueando el portón (filas 2 a 4, columnas 4 y 8)
         matrizBloques[2][4]= new Bloque(REFORZADO,4,2);
         matrizBloques[2][8]= new Bloque(REFORZADO,8,2);
         matrizBloques[3][4]= new Bloque(REFORZADO,4,3);
         matrizBloques[3][8]= new Bloque(REFORZADO,8,3);
 
-        // Base del castillo (fila 5) reforzada completa
         for(int j=2;j<=10;j++){
             matrizBloques[5][j]= new Bloque(REFORZADO,j,5);
         }
-
-        // Fila 6 vacía (foso, sin bloques) — le da un respiro al jugador antes de la plataforma
-
         break;
     case 3:
         filas=9;
@@ -83,53 +72,42 @@ void Nivel::cargarMatriz(){
                 matrizBloques[i][j]= nullptr;
             }
         }
-
-        // Marco exterior indestructible (deja pasar la pelota por los costados libres, solo arriba y abajo del centro)
+        //indestructibles
         for(int j=0;j<columnas;j++){
             matrizBloques[0][j]= new Bloque(INDESTRUCTIBLE,j,0);
         }
-
-        // Dos columnas verticales indestructibles que dividen el tablero en 3 "cámaras"
         for(int i=1;i<=6;i++){
             matrizBloques[i][4]= new Bloque(INDESTRUCTIBLE,4,i);
             matrizBloques[i][8]= new Bloque(INDESTRUCTIBLE,8,i);
         }
-
-        // Cámara izquierda (columnas 0-3): bloques reforzados densos
+        //reforzados
         for(int i=1;i<=6;i++){
             for(int j=0;j<=3;j++){
                 matrizBloques[i][j]= new Bloque(REFORZADO,j,i);
             }
         }
-
-        // Cámara derecha (columnas 9-12): bloques reforzados densos, espejado
         for(int i=1;i<=6;i++){
             for(int j=9;j<=12;j++){
                 matrizBloques[i][j]= new Bloque(REFORZADO,j,i);
             }
         }
-
-        // Cámara central (columnas 5-7): simples, con un "techo" indestructible parcial
+        //indestructible
         matrizBloques[2][5]= new Bloque(INDESTRUCTIBLE,5,2);
         matrizBloques[2][7]= new Bloque(INDESTRUCTIBLE,7,2);
+        //siple
         for(int i=1;i<=6;i++){
             if(matrizBloques[i][5]==nullptr) matrizBloques[i][5]= new Bloque(SIMPLE,5,i);
             matrizBloques[i][6]= new Bloque(SIMPLE,6,i);
             if(matrizBloques[i][7]==nullptr) matrizBloques[i][7]= new Bloque(SIMPLE,7,i);
         }
-
-        // Base indestructible parcial, deja huecos angostos como "entradas" a cada cámara
         for(int j=0;j<columnas;j++){
             if(j!=2 && j!=6 && j!=10){
                 matrizBloques[7][j]= new Bloque(INDESTRUCTIBLE,j,7);
             }
         }
-
-        // Última línea reforzada, la defensa final antes de la plataforma
         for(int j=0;j<columnas;j++){
             matrizBloques[8][j]= new Bloque(REFORZADO,j,8);
         }
-
         break;
     default:
         break;
