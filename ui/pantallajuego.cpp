@@ -7,11 +7,9 @@
 #include <QBrush>
 #include <QPen>
 #include <QtMath>
-#include <iostream>
 #include <QRandomGenerator>
 PantallaJuego::PantallaJuego(int nivel, QWidget* parent)
     : QWidget(parent){
-    std::cout<<"Pr";
     partidaActual= new Partida(nivel);
     ptrBloques = nullptr;
     velocidad= 6.0+(nivel-1)*1.5;
@@ -385,7 +383,7 @@ void PantallaJuego::rebotarEnPlataforma(Pelota* pelota){
 
 void PantallaJuego::intentarSoltarPowerUp(int x, int y){
     int chance= QRandomGenerator::global()->bounded(100); //0-99
-    if(chance<20){ //20% de probabilidad de soltar un power-up
+    if(chance<=100){ //20% de probabilidad de soltar un power-up
 
         // entre los tipos que hay disponibles
         TIPO_POWERUP tipoElegido;

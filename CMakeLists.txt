@@ -39,6 +39,7 @@ qt_add_executable(BrickBreaker
     model/plataforma.h model/plataforma.cpp
     core/partida.h core/partida.cpp
     ui/pantallaselectorniveles.h ui/pantallaselectorniveles.cpp
+    core/motorjuego.h core/motorjuego.cpp
 
 
 )
