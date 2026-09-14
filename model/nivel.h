@@ -13,7 +13,7 @@ private:
 public:
     Nivel(int numNivel);
     ~Nivel();
-    void cargarMatriz();
+    void cargarMatrizAleatoria();
     Bloque*** getMatriz() const;
     int getNumeroNivel() const;
     int getFilas()const;
@@ -21,6 +21,7 @@ public:
 
     void liberarMatriz();
     void destruirBloque(int fila, int col);
+    void regenerar();
     int getBloquesRestantes() const;
 };
 

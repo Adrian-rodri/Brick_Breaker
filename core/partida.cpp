@@ -31,7 +31,10 @@ void Partida::liberarPelotas(){
     }
     cantidadPelotas=0;
 }
-
+void Partida::reiniciarVidasYPuntaje(){
+    vidas= 3;
+    puntaje= 0;
+}
 void Partida::agregarPelotaExtra(int posX, int posY){
     Pelota** nuevaLista= new Pelota*[cantidadPelotas+1];
     for(int i=0;i<cantidadPelotas;i++){

@@ -2,11 +2,15 @@
 #include "constantes.h"
 #include "ventanaprincipal.h"
 #include "pantallamenuprincipal.h"
+#include "EstadisticasJugador.h"
 #include <QVBoxLayout>
 #include <QHBoxLayout>
 #include <QBrush>
 #include <QPen>
 #include <QtMath>
+#include <QDialog>
+#include <QMessageBox>
+
 PantallaJuego::PantallaJuego(int nivel, QWidget* parent)
     : QWidget(parent){
     motor= new MotorJuego(nivel);
@@ -38,6 +42,11 @@ PantallaJuego::~PantallaJuego(){
     }
     delete[] itemsPowerUps;
 
+    for(int i=0;i<cantidadOrbes;i++){
+        delete itemsOrbes[i];
+    }
+    delete[] itemsOrbes;
+
     delete motor;
     motor= nullptr;
 }
@@ -50,6 +59,10 @@ void PantallaJuego::cargarUi(){
     itemsPelotas= nullptr;
     itemsPowerUps= nullptr;
     cantidadPowerUps= 0;
+    itemsOrbes= nullptr;
+    cantidadOrbes=0;
+    monedasAcumuladas= 0;
+    enPausa= false;
 
     QVBoxLayout* layoutVertical= new QVBoxLayout(this);
 
@@ -86,6 +99,7 @@ void PantallaJuego::actualizarHUD(){
     lblPuntos->setText(QString("Puntos: %1").arg(motor->partidaActual->getPuntaje()));
     lblBloques->setText(QString("Bloques: %1 / %2").arg(motor->partidaActual->getNivel()->getBloquesRestantes()).arg(totalBloques));
     lblTiempo->setText(QString("Tiempo: %1 secs").arg(cronometro.elapsed()/1000));
+    lblMonedas->setText(QString("Monedas: %1").arg(monedasAcumuladas));
 
     lblAviso->setVisible(esperando);
     if(esperando){
@@ -108,15 +122,19 @@ void PantallaJuego::cargarHUD(QVBoxLayout* layoutVertical){
     lblPuntos= new QLabel();
     lblTiempo=new QLabel();
     lblBloques=new QLabel();
+    lblMonedas= new QLabel();
 
     lblVidas->setStyleSheet(estiloLabel);
     lblPuntos->setStyleSheet(estiloLabel);
     lblTiempo->setStyleSheet(estiloLabel);
     lblBloques->setStyleSheet(estiloLabel);
+    lblMonedas->setStyleSheet(estiloLabel);
 
     layoutHUD->addWidget(lblVidas);
     layoutHUD->addStretch();
     layoutHUD->addWidget(lblBloques);
+    layoutHUD->addStretch();
+    layoutHUD->addWidget(lblMonedas);
     layoutHUD->addStretch();
     layoutHUD->addWidget(lblPuntos);
     layoutHUD->addStretch();
@@ -201,7 +219,7 @@ void PantallaJuego::keyPressEvent(QKeyEvent* event){
             motor->lanzarPelotaInicial();
         }
     }else if(event->key()==Qt::Key_Escape){
-        esperando=true;
+        togglePausa();
     }
 }
 void PantallaJuego::keyReleaseEvent(QKeyEvent* event){
@@ -215,7 +233,10 @@ void PantallaJuego::keyReleaseEvent(QKeyEvent* event){
     }
 }
 void PantallaJuego::actualizarJuego(){
-    motor->actualizarJuego(moverIzq,moverDer,esperando);
+    EstadisticasJugador stats;
+    stats.damage= 4;
+    stats.tieneMejoraArmadura= true;
+    motor->actualizarJuego(moverIzq,moverDer,esperando,stats);
 
     int fila, col;
     if(motor->huboDestruccion(fila,col)){
@@ -243,6 +264,18 @@ void PantallaJuego::actualizarJuego(){
             actualizarHUD();
         }
     }
+    int xOrbe, yOrbe, valorOrbe;
+    if(motor->huboNuevoOrbe(xOrbe, yOrbe, valorOrbe)){
+        agregarOrbe(xOrbe,yOrbe,valorOrbe);
+    }
+    int idxOrbeEliminado;
+    if(motor->huboOrbeEliminado(idxOrbeEliminado)){
+        eliminarOrbe(idxOrbeEliminado);
+    }
+    int valorRecogido;
+    if(motor->huboOrbeRecogido(valorRecogido)){
+        monedasAcumuladas+= valorRecogido;
+    }
 
     actualizarPosiciones();
     actualizarHUD();
@@ -262,6 +295,10 @@ void PantallaJuego::actualizarPosiciones(){
     PowerUp** powers= motor->getPowerUps();
     for(int i=0;i<cantidadPowerUps;i++){
         itemsPowerUps[i]->setPos(powers[i]->getX(),powers[i]->getY());
+    }
+    Orbe** orbes= motor->getOrbes();
+    for(int i=0;i<cantidadOrbes;i++){
+        itemsOrbes[i]->setPos(orbes[i]->getX(), orbes[i]->getY());
     }
 }
 
@@ -303,6 +340,42 @@ void PantallaJuego::eliminarPowerUp(int indice){
     itemsPowerUps=nuevosItems;
     cantidadPowerUps--;
 }
+void PantallaJuego::agregarOrbe(int x, int y, int valor){
+    QGraphicsEllipseItem** ptrNuevo= new QGraphicsEllipseItem*[cantidadOrbes+1];
+
+    for(int i=0;i<cantidadOrbes;i++){
+        ptrNuevo[i]= itemsOrbes[i];
+    }
+    QGraphicsEllipseItem* item= escena->addEllipse(0,0,14,14,QPen(Qt::black),QBrush(QColor(255,215,0)));
+    item->setPos(x,y);
+    ptrNuevo[cantidadOrbes]= item;
+
+    delete[] itemsOrbes;
+    itemsOrbes= ptrNuevo;
+    cantidadOrbes++;
+}
+void PantallaJuego::eliminarOrbe(int indice){
+    if(indice<0 || indice>=cantidadOrbes){
+        return;
+    }
+    escena->removeItem(itemsOrbes[indice]);
+    delete itemsOrbes[indice];
+
+    QGraphicsEllipseItem** ptrNuevo= nullptr;
+    if(cantidadOrbes-1>0){
+        ptrNuevo= new QGraphicsEllipseItem*[cantidadOrbes-1];
+        int pos=0;
+        for(int i=0;i<cantidadOrbes;i++){
+            if(i!=indice){
+                ptrNuevo[pos]= itemsOrbes[i];
+                pos++;
+            }
+        }
+    }
+    delete[] itemsOrbes;
+    itemsOrbes= ptrNuevo;
+    cantidadOrbes--;
+}
 void PantallaJuego::sincronizarPelotasExtra(){
     int nuevaCant= motor->getPartida()->getCantidadPelotas();
     QGraphicsEllipseItem** nuevaLista= new QGraphicsEllipseItem*[nuevaCant];
@@ -317,6 +390,47 @@ void PantallaJuego::sincronizarPelotasExtra(){
 
     delete[] itemsPelotas;
     itemsPelotas= nuevaLista;
+}
+void PantallaJuego::togglePausa(){
+    if(enPausa){
+        return;
+    }
+    enPausa= true;
+    timerJuego->stop();
+    QMessageBox cuadro(this);
+    cuadro.setWindowTitle("Pausa");
+    cuadro.setText("Juego En Pausa");
+    QPushButton* btnContinuar= cuadro.addButton("Continuar",QMessageBox::AcceptRole);
+    QPushButton* btnMenu= cuadro.addButton("Volver al menu",QMessageBox::RejectRole);
+
+    cuadro.exec();
+    if(cuadro.clickedButton()==btnMenu){
+        VentanaPrincipal* ventana= (VentanaPrincipal*)this->window();
+        PantallaMenuPrincipal*  pantallaMenu= new PantallaMenuPrincipal();
+        ventana->cambiarPantalla(pantallaMenu);
+        return;
+    }
+    enPausa= false;
+    timerJuego->start(16);
+    this->setFocus();
+}
+void PantallaJuego::regenerarNivel(bool fueGameOver){
+    liberarBloques();
+    motor->getPartida()->getNivel()->regenerar();
+    dibujarBloques();
+    totalBloques= motor->getPartida()->getNivel()->getBloquesRestantes();
+
+    if(fueGameOver){
+        motor->getPartida()->reiniciarVidasYPuntaje();
+        motor->getPartida()->agregarPelotaExtra(LIMITE_PANTALLA/2,420);
+        dibujarPelotas();
+    }
+    Plataforma* plat= motor->getPartida()->getPlataforma();
+    plat->setPosicion((LIMITE_PANTALLA-plat->getAncho())/2, plat->getY());
+
+    esperando= true;
+    actualizarHUD();
+
 }
 void PantallaJuego::manejarFinDePartida(){
     if(!esperando){
@@ -346,7 +460,23 @@ void PantallaJuego::manejarFinDePartida(){
 
                 if(motor->partidaActual->getCantidadPelotas()<=0){
                     motor->partidaActual->perderVida();
-                    actualizarHUD();
+                    motor->limpiarPowerUpsYOrbes();
+
+                    for(int i=0;i<cantidadPowerUps;i++){
+                        escena->removeItem(itemsPowerUps[i]);
+                        delete itemsPowerUps[i];
+                    }
+                    delete[] itemsPowerUps;
+                    itemsPowerUps= nullptr;
+                    cantidadPowerUps= 0;
+
+                    for(int i=0;i<cantidadOrbes;i++){
+                        escena->removeItem(itemsOrbes[i]);
+                        delete itemsOrbes[i];
+                    }
+                    delete[] itemsOrbes;
+                    itemsOrbes= nullptr;
+                    cantidadOrbes= 0;
 
                     if(motor->partidaActual->estaTerminada()){
                         timerJuego->stop();
@@ -367,9 +497,7 @@ void PantallaJuego::manejarFinDePartida(){
         }
     }
     if(motor->partidaActual->nivelCompletado()){
-        timerJuego->stop();
-        VentanaPrincipal* ventana = (VentanaPrincipal*)this->window();
-        PantallaMenuPrincipal* pantallaMenu = new PantallaMenuPrincipal();
-        ventana->cambiarPantalla(pantallaMenu);
+       regenerarNivel(false);
+       motor->limpiarPowerUpsYOrbes();
     }
 }

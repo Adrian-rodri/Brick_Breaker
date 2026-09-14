@@ -12,6 +12,9 @@ MotorJuego::MotorJuego(int nivel){
     cantidadPowerUps=0;
     contadorPlataformaGrande=0;
     anchoOriginalPlataforma= PLATAFORMA_ANCHO;
+
+    ptrOrbes= nullptr;
+    cantidadOrbes= 0;
 }
 MotorJuego::~MotorJuego(){
     for(int i=0; i<cantidadPowerUps; i++){
@@ -20,17 +23,23 @@ MotorJuego::~MotorJuego(){
     delete[] ptrPowerUps;
     ptrPowerUps= nullptr;
 
+    for(int i=0; i<cantidadOrbes; i++){
+        delete ptrOrbes[i];
+    }
+    delete[] ptrOrbes;
+    ptrOrbes= nullptr;
+
     delete partidaActual;
     partidaActual= nullptr;
 }
-void MotorJuego::manejarColisiones(){
+void MotorJuego::manejarColisiones(const EstadisticasJugador& stats){
     int cant= partidaActual->getCantidadPelotas();
     Pelota** pelotas= partidaActual->getPelotas();
     for(int i=0;i<cant;i++){
-        manejarColisionesPelota(pelotas[i]);
+        manejarColisionesPelota(pelotas[i], stats);
     }
 }
-void MotorJuego::manejarColisionesPelota(Pelota* pelota){
+void MotorJuego::manejarColisionesPelota(Pelota* pelota, const EstadisticasJugador& stats){
     //colisiones con limites de la escena
     int diametro= pelota->getDiametro();
     if(pelota->getX()<=0){
@@ -67,9 +76,11 @@ void MotorJuego::manejarColisionesPelota(Pelota* pelota){
             QRectF rectBloque(10+bloque->getPosX()*BRICK_ANCHO,bloque->getPosY()*BRICK_ALTO,BRICK_ANCHO,BRICK_ALTO);
 
             if(rectPelota.intersects(rectBloque)){
-                bloque->recibirGolpe();
+                bloque->recibirGolpe(stats);
                 if(bloque->estaRoto()){
-                    partidaActual->sumarPuntos(bloque->getPuntos());
+                    int xOrbe= 10 + bloque->getPosX()*BRICK_ANCHO + (BRICK_ANCHO - 14)/2;
+                    int yOrbe= bloque->getPosY()*BRICK_ALTO + (BRICK_ALTO - 14)/2;
+                    soltarOrbe(xOrbe, yOrbe, bloque->getValorMoneda());
                     intentarSoltarPowerUp(10+bloque->getPosX()*BRICK_ANCHO, bloque->getPosY()*BRICK_ALTO);
                     nivel->destruirBloque(i,j);
 
@@ -130,7 +141,7 @@ void MotorJuego::rebotarEnPlataforma(Pelota* pelota){
     pelota->setVelocidad(nuevaVelX,nuevaVelY);
     pelota->setPosicion(pelota->getX(),plataforma->getY()-pelota->getDiametro());
 }
-void MotorJuego::actualizarJuego(bool moverIzq, bool moverDer,bool esperando){
+void MotorJuego::actualizarJuego(bool moverIzq, bool moverDer,bool esperando, const EstadisticasJugador& stats){
     resetearEventos();
     Plataforma* plataforma= partidaActual->getPlataforma();
     Pelota** pelotas= partidaActual->getPelotas();
@@ -157,8 +168,9 @@ void MotorJuego::actualizarJuego(bool moverIzq, bool moverDer,bool esperando){
         for(int i=0;i<cant;i++){
             pelotas[i]->mover();
         }
-        manejarColisiones();
+        manejarColisiones(stats);
         actualizarPowerUps();
+        actualizarOrbes();
     }
 
 }
@@ -282,6 +294,83 @@ void MotorJuego::aplicarPowerUp(PowerUp* power){
     }
     }
 }
+void MotorJuego::limpiarPowerUpsYOrbes(){
+    for(int i=0;i<cantidadPowerUps;i++){
+        delete ptrPowerUps[i];
+    }
+    delete[] ptrPowerUps;
+    ptrPowerUps= nullptr;
+    cantidadPowerUps= 0;
+
+    for(int i=0;i<cantidadOrbes;i++){
+        delete ptrOrbes[i];
+    }
+    delete[] ptrOrbes;
+    ptrOrbes= nullptr;
+    cantidadOrbes= 0;
+}
+void MotorJuego::soltarOrbe(int x, int y, int valor){
+    Orbe* nuevo= new Orbe(x,y,valor);
+    Orbe** ptrNuevo= new Orbe*[cantidadOrbes+1];
+    for(int i=0;i<cantidadOrbes;i++){
+        ptrNuevo[i]= ptrOrbes[i];
+    }
+    ptrNuevo[cantidadOrbes]= nuevo;
+    delete[] ptrOrbes;
+    ptrOrbes= ptrNuevo;
+    cantidadOrbes++;
+
+    huboOrbeNuevo= true;
+    posXNuevoOrbe= x;
+    posYNuevoOrbe= y;
+    valorNuevoOrbe= valor;
+}
+void MotorJuego::actualizarOrbes(){
+    Plataforma* plataforma= partidaActual->getPlataforma();
+    QRectF rectPlat(plataforma->getX(),plataforma->getY(),plataforma->getAncho(),plataforma->getAlto());
+
+    for(int i=0;i<cantidadOrbes;i++){
+        ptrOrbes[i]->caer();
+        QRectF rectOrbe(ptrOrbes[i]->getX(), ptrOrbes[i]->getY(),ptrOrbes[i]->getAncho(),ptrOrbes[i]->getAlto());
+        if(rectOrbe.intersects(rectPlat)){
+            aplicarOrbe(ptrOrbes[i]);
+            seEliminoOrbe= true;
+            idxOrbeEliminado= i;
+            eliminarOrbe(i);
+            return;
+        }
+        if(ptrOrbes[i]->getY()>480){
+            seEliminoOrbe=true;
+            idxOrbeEliminado=i;
+            eliminarOrbe(i);
+            return;
+        }
+    }
+}
+void MotorJuego::aplicarOrbe(Orbe* orbe){
+    seRecogioOrbe= true;
+    valorOrbeRecogido= orbe->getValor();
+}
+void MotorJuego::eliminarOrbe(int indice){
+    if(indice<0 || indice>=cantidadOrbes){
+        return;
+    }
+    delete ptrOrbes[indice];
+    Orbe** ptrnuevo= nullptr;
+    if(cantidadOrbes-1>0){
+        ptrnuevo= new Orbe*[cantidadOrbes-1];
+        int pos= 0;
+        for(int i=0;i<cantidadOrbes;i++){
+            if(i!=indice){
+                ptrnuevo[pos]= ptrOrbes[i];
+                pos++;
+            }
+        }
+    }
+    delete[] ptrOrbes;
+    ptrOrbes= ptrnuevo;
+    cantidadOrbes--;
+}
 void MotorJuego::resetearEventos(){
     seDestruyoBloque= false;
     filaDestruida=-1;
@@ -297,6 +386,16 @@ void MotorJuego::resetearEventos(){
     seEliminoPowerUp= false;
     idxPowerUpEliminado= -1;
     seAplicoPowerUp= false;
+
+    huboOrbeNuevo= false;
+    posXNuevoOrbe= -1;
+    posYNuevoOrbe= -1;
+    valorNuevoOrbe= -1;
+
+    seEliminoOrbe= false;
+    idxOrbeEliminado= -1;
+    seRecogioOrbe= false;
+    valorOrbeRecogido= -1;
 }
 bool MotorJuego::huboDestruccion(int& fila, int& col){
     if(seDestruyoBloque){
@@ -334,7 +433,32 @@ bool MotorJuego::huboPowerUpAplicado(TIPO_POWERUP& tipo){
     }
     return false;
 }
-
+bool MotorJuego::huboNuevoOrbe(int& x, int& y, int& valor){
+    if(huboOrbeNuevo){
+        x= posXNuevoOrbe;
+        y= posYNuevoOrbe;
+        valor= valorNuevoOrbe;
+        return true;
+    }
+    return false;
+}
+bool MotorJuego::huboOrbeEliminado(int& indice){
+    if(seEliminoOrbe){
+        indice= idxOrbeEliminado;
+        return true;
+    }
+    return false;
+}
+bool MotorJuego::huboOrbeRecogido(int& valor){
+    if(seRecogioOrbe){
+        valor= valorOrbeRecogido;
+        return true;
+    }
+    return false;
+}
+Orbe** MotorJuego::getOrbes()const{
+    return ptrOrbes;
+}
 PowerUp** MotorJuego::getPowerUps() const{
     return ptrPowerUps;
 }

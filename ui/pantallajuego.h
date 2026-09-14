@@ -26,12 +26,19 @@ private:
     QGraphicsRectItem* itemPlataforma;
     QGraphicsEllipseItem** itemsPelotas;
     QGraphicsRectItem** itemsPowerUps;
+    QGraphicsEllipseItem** itemsOrbes;
     QTimer* timerJuego;
     QElapsedTimer cronometro;
     int cantidadPowerUps;
+    int cantidadOrbes;
+    int monedasAcumuladas;//moverlo a perfilprogrseo despues
+
+    bool enPausa;
+    void togglePausa();
 
     void actualizarJuego();
     void manejarFinDePartida();
+    void regenerarNivel(bool fueGameOver);
     //movimiento
     bool moverIzq;
     bool moverDer;
@@ -42,6 +49,9 @@ private:
     void eliminarPowerUp(int indice);
     void sincronizarPelotasExtra();
 
+    void agregarOrbe(int x,int y, int valor);
+    void eliminarOrbe(int indice);
+
     void keyPressEvent(QKeyEvent* event) override;
     void keyReleaseEvent(QKeyEvent* event) override;
 
@@ -50,6 +60,7 @@ private:
     QLabel* lblPuntos;
     QLabel* lblTiempo;
     QLabel* lblBloques;
+    QLabel* lblMonedas;
     QLabel* lblAviso;
     int totalBloques;
     void cargarHUD(QVBoxLayout* layoutVertical);

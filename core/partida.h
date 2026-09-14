@@ -22,6 +22,7 @@ public:
     void ganarVida();
     bool estaTerminada();
     bool nivelCompletado();
+    void reiniciarVidasYPuntaje();
     int getVidas();
     int getPuntaje();
     Nivel* getNivel() const;

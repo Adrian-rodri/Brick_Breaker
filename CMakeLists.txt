@@ -40,6 +40,11 @@ qt_add_executable(BrickBreaker
     core/partida.h core/partida.cpp
     ui/pantallaselectorniveles.h ui/pantallaselectorniveles.cpp
     core/motorjuego.h core/motorjuego.cpp
+    model/bloquesimple.h model/bloquesimple.cpp
+    model/orbe.h model/orbe.cpp
+    model/bloquereforzado.h model/bloquereforzado.cpp
+    model/bloqueblindado.h model/bloqueblindado.cpp
+    utils/EstadisticasJugador.h
 
 
 )
