@@ -7,21 +7,18 @@
 #include <QBrush>
 #include <QPen>
 #include <QtMath>
-#include <QRandomGenerator>
 PantallaJuego::PantallaJuego(int nivel, QWidget* parent)
     : QWidget(parent){
-    partidaActual= new Partida(nivel);
+    motor= new MotorJuego(nivel);
     ptrBloques = nullptr;
-    velocidad= 6.0+(nivel-1)*1.5;
-    partidaActual->getPlataforma()->setVelocidad(7+(nivel-1)* 2);
     cargarUi();
 }
 
 PantallaJuego::PantallaJuego(Partida* partidaCargada, QWidget* parent)
     : QWidget(parent){
-    partidaActual= partidaCargada;
+    motor= new MotorJuego(partidaCargada->getNivel()->getNumeroNivel());
+    motor->partidaActual= partidaCargada;
     ptrBloques= nullptr;
-    velocidad= 6.0;
     cargarUi();
 }
 
@@ -29,7 +26,7 @@ PantallaJuego::~PantallaJuego(){
     timerJuego->stop();
     liberarBloques();
     if(itemsPelotas!=nullptr){
-        int cant= partidaActual->getCantidadPelotas();
+        int cant= motor->getPartida()->getCantidadPelotas();
         for(int i=0;i<cant;i++){
             delete itemsPelotas[i];
         }
@@ -38,13 +35,11 @@ PantallaJuego::~PantallaJuego(){
     }
     for(int i=0;i<cantidadPowerUps;i++){
         delete itemsPowerUps[i];
-        delete ptrPowerUps[i];
     }
     delete[] itemsPowerUps;
-    delete[] ptrPowerUps;
 
-    delete partidaActual;
-    partidaActual= nullptr;
+    delete motor;
+    motor= nullptr;
 }
 
 void PantallaJuego::cargarUi(){
@@ -53,11 +48,8 @@ void PantallaJuego::cargarUi(){
     moverDer= false;
     esperando= true;
     itemsPelotas= nullptr;
-    ptrPowerUps= nullptr;
     itemsPowerUps= nullptr;
     cantidadPowerUps= 0;
-    contadorPlataformaGrande= 0;
-    anchoOriginalPlataforma= PLATAFORMA_ANCHO;
 
     QVBoxLayout* layoutVertical= new QVBoxLayout(this);
 
@@ -79,7 +71,7 @@ void PantallaJuego::cargarUi(){
     dibujarPlataforma();
     dibujarPelotas();
 
-    totalBloques= partidaActual->getNivel()->getBloquesRestantes();
+    totalBloques= motor->getPartida()->getNivel()->getBloquesRestantes();
     cronometro.start();
 
     timerJuego= new QTimer(this);
@@ -90,10 +82,10 @@ void PantallaJuego::cargarUi(){
     this->setFocus();
 }
 void PantallaJuego::actualizarHUD(){
-    lblVidas->setText(QString("Vidas: %1").arg(partidaActual->getVidas()));
-    lblPuntos->setText(QString("Puntos: %1").arg(partidaActual->getPuntaje()));
-    lblBloques->setText(QString("Bloques: %1 / %2").arg(partidaActual->getNivel()->getBloquesRestantes()).arg(totalBloques));
-    lblTiempo->setText(QString("Tiempo: %1 secsw").arg(cronometro.elapsed()/1000));
+    lblVidas->setText(QString("Vidas: %1").arg(motor->partidaActual->getVidas()));
+    lblPuntos->setText(QString("Puntos: %1").arg(motor->partidaActual->getPuntaje()));
+    lblBloques->setText(QString("Bloques: %1 / %2").arg(motor->partidaActual->getNivel()->getBloquesRestantes()).arg(totalBloques));
+    lblTiempo->setText(QString("Tiempo: %1 secs").arg(cronometro.elapsed()/1000));
 
     lblAviso->setVisible(esperando);
     if(esperando){
@@ -154,7 +146,7 @@ void PantallaJuego::liberarBloques(){
     ptrBloques=nullptr;
 }
 void PantallaJuego::dibujarBloques(){
-    Nivel* nivelActual= partidaActual->getNivel();
+    Nivel* nivelActual= motor->getPartida()->getNivel();
     filas= nivelActual->getFilas();
     col= nivelActual->getColumnas();
 
@@ -179,29 +171,22 @@ void PantallaJuego::dibujarBloques(){
     }
 }
 void PantallaJuego::dibujarPlataforma(){
-    Plataforma* plat= partidaActual->getPlataforma();
+    Plataforma* plat= motor->getPartida()->getPlataforma();
     itemPlataforma= escena->addRect(0,0,plat->getAncho(),plat->getAlto(),QPen(Qt::white), QBrush(Qt::white));
     itemPlataforma->setPos(plat->getX(),plat->getY());
 }
 void PantallaJuego::dibujarPelotas(){
-    int cant= partidaActual->getCantidadPelotas();
+    int cant= motor->getPartida()->getCantidadPelotas();
     itemsPelotas= new QGraphicsEllipseItem*[cant];
 
     for(int i=0;i<cant;i++){
-        Pelota* pelota= partidaActual->getPelotas()[i];
+        Pelota* pelota= motor->partidaActual->getPelotas()[i];
         QGraphicsEllipseItem* item= escena->addEllipse(0,0,pelota->getDiametro(),pelota->getDiametro(),QPen(Qt::white), QBrush(Qt::white));
         item->setPos(pelota->getX(),pelota->getY());
         itemsPelotas[i]=item;
     }
 }
-void PantallaJuego::lanzarPelota(){
-    double anguloInicial=25.0;
-    double anguloEnRads= qDegreesToRadians(anguloInicial);
 
-    int velX= (int)(velocidad*qSin(anguloEnRads));
-    int velY= (int)(-velocidad*qCos(anguloEnRads));
-    partidaActual->getPelotas()[0]->setVelocidad(velX,velY);
-}
 void PantallaJuego::keyPressEvent(QKeyEvent* event){
     if(event->isAutoRepeat()){
         return;
@@ -213,14 +198,10 @@ void PantallaJuego::keyPressEvent(QKeyEvent* event){
     }else if(event->key()==Qt::Key_W || event->key()==Qt::Key_Up || event->key()==Qt::Key_Space){
         if(esperando){
             esperando= false;
-            partidaActual->getPlataforma()->setAncho(PLATAFORMA_ANCHO);
-            lanzarPelota();
+            motor->lanzarPelotaInicial();
         }
     }else if(event->key()==Qt::Key_Escape){
         esperando=true;
-    }
-    if(event->key()==Qt::Key_P){
-        partidaActual->getPlataforma()->setAncho(partidaActual->getPlataforma()->getAncho()+6);
     }
 }
 void PantallaJuego::keyReleaseEvent(QKeyEvent* event){
@@ -234,257 +215,71 @@ void PantallaJuego::keyReleaseEvent(QKeyEvent* event){
     }
 }
 void PantallaJuego::actualizarJuego(){
-    Plataforma* plat= partidaActual->getPlataforma();
-    if(moverIzq){
-        plat->moverIzquierda();
-    }
-    if(moverDer){
-        plat->moverDerecha();
-    }
+    motor->actualizarJuego(moverIzq,moverDer,esperando);
 
-    if(contadorPlataformaGrande>0){
-        contadorPlataformaGrande--;
-        if(contadorPlataformaGrande==0){
-            plat->setAncho(anchoOriginalPlataforma);
+    int fila, col;
+    if(motor->huboDestruccion(fila,col)){
+        escena->removeItem(ptrBloques[fila][col]);
+        delete ptrBloques[fila][col];
+        ptrBloques[fila][col]= nullptr;
+
+        PowerUp* power= motor->huboPowerUpNuevo();
+        if(power!=nullptr){
+            agregarPowerUp(power);
+            delete power;
+        }
+    }else if(motor->huboToque(fila,col)){
+        ptrBloques[fila][col]->setBrush(motor->getPartida()->getNivel()->getMatriz()[fila][col]->getColor());
+    }
+    int indiceEliminadp=-1;
+    if(motor->huboPowerUpEliminado(indiceEliminadp)){
+        eliminarPowerUp(indiceEliminadp);
+    }
+    TIPO_POWERUP tipoAplicado;
+    if(motor->huboPowerUpAplicado(tipoAplicado)){
+        if(tipoAplicado==BOLA_EXTRA){
+            sincronizarPelotasExtra();
+        }else if(tipoAplicado== VIDA_EXTRA){
+            actualizarHUD();
         }
     }
 
-    int cant= partidaActual->getCantidadPelotas();
-    Pelota** pelotas= partidaActual->getPelotas();
-
-    if(esperando){
-        int posX=plat->getX() + plat->getAncho()/2 -pelotas[0]->getDiametro()/2;
-        int posY=plat->getY()- pelotas[0]->getDiametro();
-        pelotas[0]->setPosicion(posX,posY);
-    }else{
-        for(int i=0;i<cant;i++){
-            pelotas[i]->mover();
-        }
-        manejarColisiones();
-        actualizarPowerUps();
-    }
     actualizarPosiciones();
     actualizarHUD();
     manejarFinDePartida();
 }
 void PantallaJuego::actualizarPosiciones(){
-    Plataforma* plat= partidaActual->getPlataforma();
+    Plataforma* plat= motor->getPartida()->getPlataforma();
     itemPlataforma->setRect(0, 0, plat->getAncho(), plat->getAlto());
     itemPlataforma->setPos(plat->getX(),plat->getY());
-    int cant= partidaActual->getCantidadPelotas();
-    Pelota** pelotas= partidaActual->getPelotas();
+
+    int cant= motor->getPartida()->getCantidadPelotas();
+    Pelota** pelotas= motor->getPartida()->getPelotas();
     for(int i=0;i<cant;i++){
         itemsPelotas[i]->setPos(pelotas[i]->getX(),pelotas[i]->getY());
-}
-}
-void PantallaJuego::manejarColisiones(){
-    int cant= partidaActual->getCantidadPelotas();
-    Pelota** pelotas= partidaActual->getPelotas();
-    for(int i=0;i<cant;i++){
-        manejarColisionesPelota(pelotas[i]);
     }
-}
 
-void PantallaJuego::manejarColisionesPelota(Pelota* pelota){
-    Plataforma* plat= partidaActual->getPlataforma();
-    int diametro= pelota->getDiametro();
-
-    if(pelota->getX()<=0){
-        pelota->setPosicion(0,pelota->getY());
-        pelota->invertirVelocidadX();
-    }
-    if(pelota->getX()+diametro>= LIMITE_PANTALLA){
-        pelota->setPosicion(LIMITE_PANTALLA-diametro,pelota->getY());
-        pelota->invertirVelocidadX();
-    }
-    if(pelota->getY()<=0){
-        pelota->setPosicion(pelota->getX(),0);
-        pelota->invertirVelocidadY();
-    }
-    QRectF rectPelota(pelota->getX(),pelota->getY(),diametro,diametro);
-    QRectF rectPlat(plat->getX(),plat->getY(),plat->getAncho(),plat->getAlto());
-
-    if(rectPelota.intersects(rectPlat)&& pelota->getVelocidadY()>0){
-        rebotarEnPlataforma(pelota);
-        return;
-    }
-    Nivel* nivel= partidaActual->getNivel();
-    for(int i=0;i<filas;i++){
-        for(int j=0;j<col;j++){
-            Bloque* bloque= nivel->getMatriz()[i][j];
-            if(bloque==nullptr){
-                continue;
-            }
-            QRectF rectBloque(10+bloque->getPosX()*BRICK_ANCHO, bloque->getPosY()*BRICK_ALTO,BRICK_ANCHO,BRICK_ALTO);
-
-            if(rectPelota.intersects(rectBloque)){
-                bloque->recibirGolpe();
-                if(bloque->estaRoto()){
-                    partidaActual->sumarPuntos(bloque->getPuntos());
-                    intentarSoltarPowerUp(10+bloque->getPosX()*BRICK_ANCHO, bloque->getPosY()*BRICK_ALTO);
-
-                    escena->removeItem(ptrBloques[i][j]);
-                    delete ptrBloques[i][j];
-                    ptrBloques[i][j]= nullptr;
-
-                    nivel->destruirBloque(i,j);
-                }else{
-                    ptrBloques[i][j]->setBrush(bloque->getColor());
-                }
-                double collisionX= qMin(rectPelota.right(), rectBloque.right())- qMax(rectPelota.left(),rectBloque.left());
-                double collisionY= qMin(rectPelota.bottom(),rectBloque.bottom())- qMax(rectPelota.top(),rectBloque.top());
-
-                if(collisionX<collisionY){
-                    pelota->invertirVelocidadX();
-                    if(rectPelota.center().x()<rectBloque.center().x()){
-                        pelota->setPosicion(rectBloque.left()-diametro, pelota->getY());
-                    }else{
-                        pelota->setPosicion(rectBloque.right(), pelota->getY());
-                    }
-                }else{
-                    pelota->invertirVelocidadY();
-                    if (rectPelota.center().y() < rectBloque.center().y()) {
-                        pelota->setPosicion(pelota->getX(), rectBloque.top() - diametro);
-                    } else {
-                        pelota->setPosicion(pelota->getX(), rectBloque.bottom());
-                    }
-                }
-                return;
-            }
-        }
-    }
-}
-void PantallaJuego::rebotarEnPlataforma(Pelota* pelota){
-    Plataforma* plat= partidaActual->getPlataforma();
-
-    double centroPelota= pelota->getX()+pelota->getDiametro()/2.0;
-    double centroPlat= plat->getX()+plat->getAncho()/2.0;
-
-    double proporcion= (centroPelota- centroPlat)/(plat->getAncho()/2.0);
-
-    if(proporcion< -1){
-        proporcion=-1;
-    }
-    if(proporcion>1){
-        proporcion=1;
-    }
-    double anguloMax=60.0;
-    double anguloRad= qDegreesToRadians(proporcion*anguloMax);
-
-    double nuevaVelX= velocidad*qSin(anguloRad);
-    double nuevaVelY= -velocidad*qCos(anguloRad);
-
-    if(nuevaVelY==0){
-        nuevaVelY=-2.0;
-    }
-    pelota->setVelocidad(nuevaVelX,nuevaVelY);
-    pelota->setPosicion(pelota->getX(),plat->getY()-pelota->getDiametro());
-}
-
-void PantallaJuego::intentarSoltarPowerUp(int x, int y){
-    int chance= QRandomGenerator::global()->bounded(100); //0-99
-    if(chance<=100){ //20% de probabilidad de soltar un power-up
-
-        // entre los tipos que hay disponibles
-        TIPO_POWERUP tipoElegido;
-        int tipoRand= QRandomGenerator::global()->bounded(3);
-        if(tipoRand==0){
-            tipoElegido= BOLA_EXTRA;
-        }else if(tipoRand==1){
-            tipoElegido= VIDA_EXTRA;
-        }else{
-            tipoElegido= PLATAFORMA_GRANDE;
-        }
-
-        PowerUp* nuevo= new PowerUp(tipoElegido,x,y);
-
-        PowerUp** nuevaLista= new PowerUp*[cantidadPowerUps+1];
-        QGraphicsRectItem** nuevosItems= new QGraphicsRectItem*[cantidadPowerUps+1];
-
-        for(int i=0;i<cantidadPowerUps;i++){
-            nuevaLista[i]=ptrPowerUps[i];
-            nuevosItems[i]=itemsPowerUps[i];
-        }
-        nuevaLista[cantidadPowerUps]=nuevo;
-
-        QGraphicsRectItem* item= escena->addRect(0,0,nuevo->getAncho(),nuevo->getAlto(),QPen(Qt::black),nuevo->getColor());
-        item->setPos(nuevo->getX(),nuevo->getY());
-        nuevosItems[cantidadPowerUps]=item;
-
-        delete[] ptrPowerUps;
-        delete[] itemsPowerUps;
-        ptrPowerUps=nuevaLista;
-        itemsPowerUps=nuevosItems;
-        cantidadPowerUps++;
-    }
-}
-
-
-void PantallaJuego::actualizarPowerUps(){
-    Plataforma* plat= partidaActual->getPlataforma();
-    QRectF rectPlat(plat->getX(),plat->getY(),plat->getAncho(),plat->getAlto());
-
+    PowerUp** powers= motor->getPowerUps();
     for(int i=0;i<cantidadPowerUps;i++){
-        ptrPowerUps[i]->caer();
-        itemsPowerUps[i]->setPos(ptrPowerUps[i]->getX(),ptrPowerUps[i]->getY());
-
-        QRectF rectPower(ptrPowerUps[i]->getX(),ptrPowerUps[i]->getY(),
-                         ptrPowerUps[i]->getAncho(),ptrPowerUps[i]->getAlto());
-
-        if(rectPower.intersects(rectPlat)){
-            aplicarPowerUp(ptrPowerUps[i]);
-            eliminarPowerUp(i);
-            i--;
-            continue;
-        }
-        if(ptrPowerUps[i]->getY()>480){
-            eliminarPowerUp(i);
-            i--;
-        }
+        itemsPowerUps[i]->setPos(powers[i]->getX(),powers[i]->getY());
     }
 }
 
-void PantallaJuego::aplicarPowerUp(PowerUp* power){
-    switch(power->getTipo()){
-    case BOLA_EXTRA:{
-        Plataforma* plat= partidaActual->getPlataforma();
-        int x= plat->getX()+plat->getAncho()/2;
-        int y= plat->getY()-20;
 
-        partidaActual->agregarPelotaExtra(x,y);
 
-        int nuevaCant= partidaActual->getCantidadPelotas();
-        QGraphicsEllipseItem** nuevaListaItems= new QGraphicsEllipseItem*[nuevaCant];
-        for(int i=0;i<nuevaCant-1;i++){
-            nuevaListaItems[i]=itemsPelotas[i];
-        }
-        Pelota* nueva= partidaActual->getPelotas()[nuevaCant-1];
-        QGraphicsEllipseItem* item= escena->addEllipse(0,0,nueva->getDiametro(),nueva->getDiametro(),
-                                                        QPen(Qt::white),QBrush(Qt::white));
-        item->setPos(nueva->getX(),nueva->getY());
-        nuevaListaItems[nuevaCant-1]=item;
+void PantallaJuego::agregarPowerUp(PowerUp* nuevoPower){
+    QGraphicsRectItem** nuevosItems= new QGraphicsRectItem*[cantidadPowerUps + 1];
 
-        delete[] itemsPelotas;
-        itemsPelotas=nuevaListaItems;
-        break;
+    for(int i=0; i<cantidadPowerUps; i++){
+        nuevosItems[i]= itemsPowerUps[i];
     }
-    case VIDA_EXTRA:{
-        partidaActual->ganarVida();
-        actualizarHUD();
-        break;
-    }
-    case PLATAFORMA_GRANDE:{
-        Plataforma* plat= partidaActual->getPlataforma();
+    QGraphicsRectItem* item= escena->addRect(0, 0, nuevoPower->getAncho(), nuevoPower->getAlto(), QPen(Qt::black), nuevoPower->getColor());
+    item->setPos(nuevoPower->getX(), nuevoPower->getY());
+    nuevosItems[cantidadPowerUps]= item;
 
-        if(contadorPlataformaGrande<=0){
-            anchoOriginalPlataforma= plat->getAncho();
-            plat->setAncho(anchoOriginalPlataforma + 40); //se agranda 40px
-        }
-        //si ya estaba activo, solo se reinicia la duracion
-        contadorPlataformaGrande= 300; //300 ticks
-        break;
-    }
-    }
+    delete[] itemsPowerUps;
+    itemsPowerUps= nuevosItems;
+    cantidadPowerUps++;
 }
 
 void PantallaJuego::eliminarPowerUp(int indice){
@@ -492,34 +287,41 @@ void PantallaJuego::eliminarPowerUp(int indice){
 
     escena->removeItem(itemsPowerUps[indice]);
     delete itemsPowerUps[indice];
-    delete ptrPowerUps[indice];
 
-    PowerUp** nuevaLista= nullptr;
     QGraphicsRectItem** nuevosItems= nullptr;
-
     if(cantidadPowerUps-1>0){
-        nuevaLista= new PowerUp*[cantidadPowerUps-1];
         nuevosItems= new QGraphicsRectItem*[cantidadPowerUps-1];
         int pos=0;
         for(int i=0;i<cantidadPowerUps;i++){
             if(i!=indice){
-                nuevaLista[pos]=ptrPowerUps[i];
                 nuevosItems[pos]=itemsPowerUps[i];
                 pos++;
             }
         }
     }
-    delete[] ptrPowerUps;
     delete[] itemsPowerUps;
-    ptrPowerUps=nuevaLista;
     itemsPowerUps=nuevosItems;
     cantidadPowerUps--;
 }
+void PantallaJuego::sincronizarPelotasExtra(){
+    int nuevaCant= motor->getPartida()->getCantidadPelotas();
+    QGraphicsEllipseItem** nuevaLista= new QGraphicsEllipseItem*[nuevaCant];
 
+    for(int i=0;i<nuevaCant-1;i++){
+        nuevaLista[i]= itemsPelotas[i];
+    }
+    Pelota* nueva= motor->getPartida()->getPelotas()[nuevaCant-1];
+    QGraphicsEllipseItem* item= escena->addEllipse(0,0,nueva->getDiametro(),nueva->getDiametro(),QPen(Qt::white),QBrush(Qt::white));
+    item->setPos(nueva->getX(), nueva->getY());
+    nuevaLista[nuevaCant-1]= item;
+
+    delete[] itemsPelotas;
+    itemsPelotas= nuevaLista;
+}
 void PantallaJuego::manejarFinDePartida(){
     if(!esperando){
-        int cant= partidaActual->getCantidadPelotas();
-        Pelota** pelotas= partidaActual->getPelotas();
+        int cant= motor->partidaActual->getCantidadPelotas();
+        Pelota** pelotas= motor->partidaActual->getPelotas();
 
         for(int i=0;i<cant;i++){
             if(pelotas[i]->getY()>480){
@@ -540,23 +342,23 @@ void PantallaJuego::manejarFinDePartida(){
                 delete[] itemsPelotas;
                 itemsPelotas=nuevaListaItems;
 
-                partidaActual->eliminarPelota(i);
+                motor->partidaActual->eliminarPelota(i);
 
-                if(partidaActual->getCantidadPelotas()<=0){
-                    partidaActual->perderVida();
+                if(motor->partidaActual->getCantidadPelotas()<=0){
+                    motor->partidaActual->perderVida();
                     actualizarHUD();
 
-                    if(partidaActual->estaTerminada()){
+                    if(motor->partidaActual->estaTerminada()){
                         timerJuego->stop();
                         VentanaPrincipal* ventana = (VentanaPrincipal*)this->window();
                         PantallaMenuPrincipal* pantallaMenu = new PantallaMenuPrincipal();
                         ventana->cambiarPantalla(pantallaMenu);
                         return;
                     }
-                    partidaActual->agregarPelotaExtra(LIMITE_PANTALLA/2,420);
+                    motor->partidaActual->agregarPelotaExtra(LIMITE_PANTALLA/2,420);
                     dibujarPelotas();
 
-                    Plataforma* plat= partidaActual->getPlataforma();
+                    Plataforma* plat= motor->partidaActual->getPlataforma();
                     plat->setPosicion((LIMITE_PANTALLA-plat->getAncho())/2,plat->getY());
                     esperando=true;
                 }
@@ -564,7 +366,7 @@ void PantallaJuego::manejarFinDePartida(){
             }
         }
     }
-    if(partidaActual->nivelCompletado()){
+    if(motor->partidaActual->nivelCompletado()){
         timerJuego->stop();
         VentanaPrincipal* ventana = (VentanaPrincipal*)this->window();
         PantallaMenuPrincipal* pantallaMenu = new PantallaMenuPrincipal();

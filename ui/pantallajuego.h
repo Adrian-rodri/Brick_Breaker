@@ -11,7 +11,7 @@
 
 #include "partida.h"
 #include "powerup.h"
-
+#include "motorjuego.h"
 class PantallaJuego : public QWidget
 {
     Q_OBJECT
@@ -21,18 +21,14 @@ public:
     ~PantallaJuego() override;
 
 private:
-    Partida* partidaActual;
+    MotorJuego* motor;
     QGraphicsRectItem*** ptrBloques;
     QGraphicsRectItem* itemPlataforma;
     QGraphicsEllipseItem** itemsPelotas;
-    PowerUp** ptrPowerUps;
     QGraphicsRectItem** itemsPowerUps;
-    double velocidad;
     QTimer* timerJuego;
     QElapsedTimer cronometro;
     int cantidadPowerUps;
-    int contadorPlataformaGrande;
-    int anchoOriginalPlataforma;
 
     void actualizarJuego();
     void manejarFinDePartida();
@@ -40,17 +36,11 @@ private:
     bool moverIzq;
     bool moverDer;
     bool esperando;
-    void lanzarPelota();
-    void manejarColisiones();
-    void manejarColisionesPelota(Pelota* pelota);
     void actualizarPosiciones();
-    void rebotarEnPlataforma(Pelota* pelota);
 
-    void intentarSoltarPowerUp(int x, int y);
-    void actualizarPowerUps();
-    void aplicarPowerUp(PowerUp* power);
+    void agregarPowerUp(PowerUp* nuevoPower);
     void eliminarPowerUp(int indice);
-
+    void sincronizarPelotasExtra();
 
     void keyPressEvent(QKeyEvent* event) override;
     void keyReleaseEvent(QKeyEvent* event) override;
