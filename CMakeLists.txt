@@ -45,6 +45,8 @@ qt_add_executable(BrickBreaker
     model/bloquereforzado.h model/bloquereforzado.cpp
     model/bloqueblindado.h model/bloqueblindado.cpp
     utils/EstadisticasJugador.h
+    model/PerfilProgreso.h
+    model/PerfilProgreso.cpp
 
 
 )
