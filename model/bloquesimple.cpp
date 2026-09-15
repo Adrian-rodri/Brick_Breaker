@@ -14,5 +14,11 @@ QBrush BloqueSimple::getColor() const{
     return QBrush(QColor(252, 173, 56));
 }
 std::string BloqueSimple::getImagen() const{
-    return "";
+    return "/assets/bloqueSimple.png";
+}
+int BloqueSimple::getFrameSprite(int fila) const{
+    return fila % 5;
+}
+int BloqueSimple::getFrameEstado() const{
+    return 0;
 }

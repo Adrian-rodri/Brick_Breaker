@@ -70,6 +70,12 @@ private:
     int col;
     QGraphicsScene* escena;
     QGraphicsView* vista;
+
+    QPixmap spriteSimple;
+    QPixmap spriteReforzado;
+    QPixmap spriteBlindado;
+
+    QPixmap obtenerSprite(Bloque* bloque, int fila);
     void cargarUi();
     void liberarBloques();
     void dibujarBloques();

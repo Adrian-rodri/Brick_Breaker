@@ -64,6 +64,8 @@ void PantallaJuego::cargarUi(){
     monedasAcumuladas= 0;
     enPausa= false;
 
+    spriteSimple= QPixmap(":/assets/bloqueSimple.png");
+    spriteReforzado= QPixmap(":/assets/bloqueReforzado.png");
     QVBoxLayout* layoutVertical= new QVBoxLayout(this);
 
     cargarHUD(layoutVertical);
@@ -153,6 +155,29 @@ void PantallaJuego::cargarHUD(QVBoxLayout* layoutVertical){
                             "border-radius: 6px;");
 
 }
+QPixmap PantallaJuego::obtenerSprite(Bloque* bloque, int fila){
+    QPixmap hoja;
+    int columna, filaSprite;
+    switch(bloque->getTipoBloque()){
+
+    case SIMPLE:{
+        columna= bloque->getFrameSprite(fila);
+        filaSprite=0;
+        hoja= spriteSimple;
+        break;
+    }case REFORZADO:{
+        hoja= spriteReforzado;
+        columna= bloque->getFrameEstado();
+        filaSprite= bloque->getFrameSprite(fila);
+        break;
+    }case BLINDADO:{
+        hoja= spriteBlindado;
+        break;
+    }}
+\
+
+    return hoja.copy(columna*BRICK_ANCHO, filaSprite*BRICK_ALTO, BRICK_ANCHO, BRICK_ALTO);
+}
 void PantallaJuego::liberarBloques(){
     if(ptrBloques==nullptr){
         return;
@@ -183,6 +208,17 @@ void PantallaJuego::dibujarBloques(){
             QGraphicsRectItem* item= escena->addRect(0, 0, BRICK_ANCHO, BRICK_ALTO,
                                                       QPen(Qt::black),bloque->getColor());
             item->setPos(10+bloque->getPosX()*BRICK_ANCHO, bloque->getPosY()*BRICK_ALTO);
+            if(bloque->getTipoBloque() == SIMPLE || bloque->getTipoBloque()==REFORZADO){
+                QPixmap sprite = obtenerSprite(bloque, i);
+
+                // Verificación de seguridad por si la imagen está vacía
+                if(!sprite.isNull()){
+                    item->setBrush(QBrush(sprite));
+                } else {
+                    // Si falla el sprite, usa el color por defecto para no dejarlo invisible
+                    item->setBrush(bloque->getColor());
+                }
+            }
             ptrBloques[i][j]= item;
 
         }
@@ -234,7 +270,7 @@ void PantallaJuego::keyReleaseEvent(QKeyEvent* event){
 }
 void PantallaJuego::actualizarJuego(){
     EstadisticasJugador stats;
-    stats.damage= 4;
+    stats.damage= 1;
     stats.tieneMejoraArmadura= true;
     motor->actualizarJuego(moverIzq,moverDer,esperando,stats);
 
@@ -250,7 +286,17 @@ void PantallaJuego::actualizarJuego(){
             delete power;
         }
     }else if(motor->huboToque(fila,col)){
-        ptrBloques[fila][col]->setBrush(motor->getPartida()->getNivel()->getMatriz()[fila][col]->getColor());
+        Bloque* bloqueActualizado= motor->getPartida()->getNivel()->getMatriz()[fila][col];
+        if(bloqueActualizado->getTipoBloque()==SIMPLE || bloqueActualizado->getTipoBloque()==REFORZADO){
+            QPixmap sprite= obtenerSprite(bloqueActualizado, fila);
+            if(!sprite.isNull()){
+                ptrBloques[fila][col]->setBrush(QBrush(sprite));
+            }else{
+                ptrBloques[fila][col]->setBrush(bloqueActualizado->getColor());
+            }
+        }else{
+            ptrBloques[fila][col]->setBrush(bloqueActualizado->getColor());
+        }
     }
     int indiceEliminadp=-1;
     if(motor->huboPowerUpEliminado(indiceEliminadp)){

@@ -2,5 +2,7 @@
     <qresource prefix="/">
         <file>assets/titulo.png</file>
         <file>assets/icono.png</file>
+        <file>assets/bloqueSimple.png</file>
+        <file>assets/bloqueReforzado.png</file>
     </qresource>
 </RCC>

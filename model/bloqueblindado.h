@@ -11,6 +11,8 @@ public:
     int getValorMoneda() const override;
     QBrush getColor() const override;
     std::string getImagen()const override;
+    int getFrameSprite(int fila) const override;
+    int getFrameEstado() const override;
 };
 
 #endif // BLOQUEBLINDADO_H

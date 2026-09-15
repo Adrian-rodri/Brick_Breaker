@@ -24,5 +24,7 @@ public:
     virtual int getValorMoneda() const=0;
     virtual QBrush getColor() const=0;
     virtual std::string getImagen()const=0;
+    virtual int getFrameSprite(int fila) const=0;
+    virtual int getFrameEstado() const=0;
 };
 #endif // BLOQUE_H

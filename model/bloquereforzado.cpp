@@ -34,3 +34,26 @@ QBrush BloqueReforzado::getColor()const{
 std::string BloqueReforzado::getImagen()const{
     return "";
 }
+
+int BloqueReforzado::getFrameSprite(int fila) const{
+    return fila % 5;
+}
+int BloqueReforzado::getFrameEstado() const{
+    switch(golpesRestantes){
+    case 1:{
+        return 3;
+    }
+    case 2:{
+        return 2;
+    }
+    case 3:{
+        return 1;
+    }
+    case 4:{
+        return 0;
+    }
+    default:{
+        return 0;
+    }
+    }
+}

@@ -20,3 +20,9 @@ std::string BloqueBlindado::getImagen()const{
     return "";
 }
 
+int BloqueBlindado::getFrameSprite(int fila) const{
+    return fila % 5;
+}
+int BloqueBlindado::getFrameEstado() const{
+    return 0;
+}
