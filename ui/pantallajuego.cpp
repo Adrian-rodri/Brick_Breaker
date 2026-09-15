@@ -63,6 +63,8 @@ void PantallaJuego::cargarUi(){
     cantidadOrbes=0;
     monedasAcumuladas= 0;
     enPausa= false;
+    animandoEntrada= false;
+    offsetAnimacion= 0;
 
     spriteSimple= QPixmap(":/assets/bloqueSimple.png");
     spriteReforzado= QPixmap(":/assets/bloqueReforzado.png");
@@ -270,6 +272,25 @@ void PantallaJuego::keyReleaseEvent(QKeyEvent* event){
     }
 }
 void PantallaJuego::actualizarJuego(){
+    if(animandoEntrada){
+        offsetAnimacion += 12;
+        if(offsetAnimacion >= 0){
+            offsetAnimacion = 0;
+            animandoEntrada = false;
+            escalaJugador = 1.0;
+        } else {
+            escalaJugador+=0.01;
+            if(escalaJugador > 1.0) escalaJugador = 1.0;
+        }
+        int cant= motor->getPartida()->getCantidadPelotas();
+        for(int i=0;i<cant;i++){
+            itemsPelotas[i]->setScale(escalaJugador);
+        }
+
+        actualizarPosicionesBloques();
+        actualizarHUD();
+        return;
+    }
     EstadisticasJugador stats;
     stats.damage= 1;
     stats.tieneMejoraArmadura= true;
@@ -321,6 +342,18 @@ void PantallaJuego::actualizarJuego(){
     actualizarHUD();
     manejarFinDePartida();
 }
+void PantallaJuego::actualizarPosicionesBloques(){
+    Nivel* nivelActual = motor->getPartida()->getNivel();
+    for(int i=0;i<filas;i++){
+        for(int j=0;j<col;j++){
+            if(ptrBloques[i][j]!=nullptr){
+                Bloque* bloque = nivelActual->getMatriz()[i][j];
+                ptrBloques[i][j]->setPos(10+bloque->getPosX()*BRICK_ANCHO,
+                                         bloque->getPosY()*BRICK_ALTO + offsetAnimacion);
+            }
+        }
+    }
+}
 void PantallaJuego::actualizarPosiciones(){
     Plataforma* plat= motor->getPartida()->getPlataforma();
     itemPlataforma->setRect(0, 0, plat->getAncho(), plat->getAlto());
@@ -341,7 +374,23 @@ void PantallaJuego::actualizarPosiciones(){
         itemsOrbes[i]->setPos(orbes[i]->getX(), orbes[i]->getY());
     }
 }
+void PantallaJuego::limpiarItemsPowerUpsYOrbes(){
+    for(int i=0;i<cantidadPowerUps;i++){
+        escena->removeItem(itemsPowerUps[i]);
+        delete itemsPowerUps[i];
+    }
+    delete[] itemsPowerUps;
+    itemsPowerUps= nullptr;
+    cantidadPowerUps= 0;
 
+    for(int i=0;i<cantidadOrbes;i++){
+        escena->removeItem(itemsOrbes[i]);
+        delete itemsOrbes[i];
+    }
+    delete[] itemsOrbes;
+    itemsOrbes= nullptr;
+    cantidadOrbes= 0;
+}
 
 
 void PantallaJuego::agregarPowerUp(PowerUp* nuevoPower){
@@ -462,19 +511,35 @@ void PantallaJuego::regenerarNivel(bool fueGameOver){
     liberarBloques();
     motor->getPartida()->getNivel()->regenerar();
     dibujarBloques();
+    animandoEntrada= true;
+    offsetAnimacion= -480;
+    escalaJugador= 0.0;
     totalBloques= motor->getPartida()->getNivel()->getBloquesRestantes();
+
+    Plataforma* plat= motor->getPartida()->getPlataforma();
+    plat->setPosicion((LIMITE_PANTALLA-plat->getAncho())/2, plat->getY());
 
     if(fueGameOver){
         motor->getPartida()->reiniciarVidasYPuntaje();
         motor->getPartida()->agregarPelotaExtra(LIMITE_PANTALLA/2,420);
         dibujarPelotas();
+    }else{
+        int cant= motor->getPartida()->getCantidadPelotas();
+        Pelota** pelotas= motor->getPartida()->getPelotas();
+        for(int i=0;i<cant;i++){
+            pelotas[i]->setPosicion(LIMITE_PANTALLA/2, 420);
+        }
     }
-    Plataforma* plat= motor->getPartida()->getPlataforma();
-    plat->setPosicion((LIMITE_PANTALLA-plat->getAncho())/2, plat->getY());
+
+    int cant= motor->getPartida()->getCantidadPelotas();
+    Pelota** pelotas= motor->getPartida()->getPelotas();
+    for(int i=0;i<cant;i++){
+        itemsPelotas[i]->setPos(pelotas[i]->getX(), pelotas[i]->getY());
+        itemsPelotas[i]->setScale(0.0);
+    }
 
     esperando= true;
     actualizarHUD();
-
 }
 void PantallaJuego::manejarFinDePartida(){
     if(!esperando){
@@ -505,6 +570,7 @@ void PantallaJuego::manejarFinDePartida(){
                 if(motor->partidaActual->getCantidadPelotas()<=0){
                     motor->partidaActual->perderVida();
                     motor->limpiarPowerUpsYOrbes();
+                      limpiarItemsPowerUpsYOrbes();
 
                     for(int i=0;i<cantidadPowerUps;i++){
                         escena->removeItem(itemsPowerUps[i]);
@@ -543,5 +609,6 @@ void PantallaJuego::manejarFinDePartida(){
     if(motor->partidaActual->nivelCompletado()){
        regenerarNivel(false);
        motor->limpiarPowerUpsYOrbes();
+       limpiarItemsPowerUpsYOrbes();
     }
 }

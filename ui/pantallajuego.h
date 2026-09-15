@@ -65,6 +65,13 @@ private:
     int totalBloques;
     void cargarHUD(QVBoxLayout* layoutVertical);
     void actualizarHUD();
+
+    //caida
+    bool animandoEntrada;
+    int offsetAnimacion;
+    void actualizarPosicionesBloques();
+    void limpiarItemsPowerUpsYOrbes();
+    double escalaJugador;
     //elemntos ui
     int filas;
     int col;
