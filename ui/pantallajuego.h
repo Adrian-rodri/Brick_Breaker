@@ -24,7 +24,7 @@ private:
     MotorJuego* motor;
     QGraphicsRectItem*** ptrBloques;
     QGraphicsRectItem* itemPlataforma;
-    QGraphicsEllipseItem** itemsPelotas;
+    QGraphicsPixmapItem** itemsPelotas;
     QGraphicsRectItem** itemsPowerUps;
     QGraphicsEllipseItem** itemsOrbes;
     QTimer* timerJuego;
@@ -74,6 +74,7 @@ private:
     QPixmap spriteSimple;
     QPixmap spriteReforzado;
     QPixmap spriteBlindado;
+    QPixmap spritePelota;
 
     QPixmap obtenerSprite(Bloque* bloque, int fila);
     void cargarUi();

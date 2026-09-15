@@ -10,7 +10,7 @@ Partida::Partida(int nivel) {
         PLATAFORMA_ANCHO,PLATAFORMA_ALTO);
     cantidadPelotas=1;
     listaPelotas= new Pelota*[cantidadPelotas];
-    listaPelotas[0]= new Pelota(LIMITE_PANTALLA/2, 420, 15);
+    listaPelotas[0]= new Pelota(LIMITE_PANTALLA/2, 420, 20);
 }
 
 Partida::~Partida() {
@@ -40,7 +40,7 @@ void Partida::agregarPelotaExtra(int posX, int posY){
     for(int i=0;i<cantidadPelotas;i++){
         nuevaLista[i]=listaPelotas[i];
     }
-    Pelota* nueva= new Pelota(posX,posY,15);
+    Pelota* nueva= new Pelota(posX,posY,20);
     nueva->setVelocidad(-4,-4); //para que no salga quieta
     nuevaLista[cantidadPelotas]=nueva;
 

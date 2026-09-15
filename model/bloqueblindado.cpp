@@ -24,5 +24,22 @@ int BloqueBlindado::getFrameSprite(int fila) const{
     return fila % 5;
 }
 int BloqueBlindado::getFrameEstado() const{
-    return 0;
+    switch(golpesRestantes){
+    case 1:{
+        return 5;
+    }case 2:{
+        return 4;
+    }case 3:{
+        return 3;
+    }case 4:{
+        return 2;
+    }case 5:{
+        return 1;
+    }case 6:{
+        return 0;
+    }
+    default:{
+        return 0;
+    }
+    }
 }

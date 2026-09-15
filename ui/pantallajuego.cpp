@@ -66,6 +66,8 @@ void PantallaJuego::cargarUi(){
 
     spriteSimple= QPixmap(":/assets/bloqueSimple.png");
     spriteReforzado= QPixmap(":/assets/bloqueReforzado.png");
+    spriteBlindado= QPixmap(":/assets/bloqueBlindado.png");
+    spritePelota= QPixmap(":/assets/pelota.png");
     QVBoxLayout* layoutVertical= new QVBoxLayout(this);
 
     cargarHUD(layoutVertical);
@@ -172,6 +174,8 @@ QPixmap PantallaJuego::obtenerSprite(Bloque* bloque, int fila){
         break;
     }case BLINDADO:{
         hoja= spriteBlindado;
+        columna= bloque->getFrameEstado();
+        filaSprite= bloque->getFrameSprite(fila);
         break;
     }}
 \
@@ -208,17 +212,10 @@ void PantallaJuego::dibujarBloques(){
             QGraphicsRectItem* item= escena->addRect(0, 0, BRICK_ANCHO, BRICK_ALTO,
                                                       QPen(Qt::black),bloque->getColor());
             item->setPos(10+bloque->getPosX()*BRICK_ANCHO, bloque->getPosY()*BRICK_ALTO);
-            if(bloque->getTipoBloque() == SIMPLE || bloque->getTipoBloque()==REFORZADO){
-                QPixmap sprite = obtenerSprite(bloque, i);
+            QPixmap sprite = obtenerSprite(bloque, i);
+            item->setBrush(QBrush(sprite));
 
-                // Verificación de seguridad por si la imagen está vacía
-                if(!sprite.isNull()){
-                    item->setBrush(QBrush(sprite));
-                } else {
-                    // Si falla el sprite, usa el color por defecto para no dejarlo invisible
-                    item->setBrush(bloque->getColor());
-                }
-            }
+
             ptrBloques[i][j]= item;
 
         }
@@ -231,12 +228,16 @@ void PantallaJuego::dibujarPlataforma(){
 }
 void PantallaJuego::dibujarPelotas(){
     int cant= motor->getPartida()->getCantidadPelotas();
-    itemsPelotas= new QGraphicsEllipseItem*[cant];
+    itemsPelotas= new QGraphicsPixmapItem*[cant];
 
     for(int i=0;i<cant;i++){
         Pelota* pelota= motor->partidaActual->getPelotas()[i];
-        QGraphicsEllipseItem* item= escena->addEllipse(0,0,pelota->getDiametro(),pelota->getDiametro(),QPen(Qt::white), QBrush(Qt::white));
-        item->setPos(pelota->getX(),pelota->getY());
+
+        QPixmap spriteEscalado = spritePelota.scaled(pelota->getDiametro(), pelota->getDiametro(),
+                                                      Qt::KeepAspectRatio, Qt::SmoothTransformation);
+
+        QGraphicsPixmapItem* item = escena->addPixmap(spriteEscalado);
+        item->setPos(pelota->getX(), pelota->getY());
         itemsPelotas[i]=item;
     }
 }
@@ -287,16 +288,9 @@ void PantallaJuego::actualizarJuego(){
         }
     }else if(motor->huboToque(fila,col)){
         Bloque* bloqueActualizado= motor->getPartida()->getNivel()->getMatriz()[fila][col];
-        if(bloqueActualizado->getTipoBloque()==SIMPLE || bloqueActualizado->getTipoBloque()==REFORZADO){
-            QPixmap sprite= obtenerSprite(bloqueActualizado, fila);
-            if(!sprite.isNull()){
-                ptrBloques[fila][col]->setBrush(QBrush(sprite));
-            }else{
-                ptrBloques[fila][col]->setBrush(bloqueActualizado->getColor());
-            }
-        }else{
-            ptrBloques[fila][col]->setBrush(bloqueActualizado->getColor());
-        }
+        QPixmap sprite= obtenerSprite(bloqueActualizado, fila);
+        ptrBloques[fila][col]->setBrush(QBrush(sprite));
+
     }
     int indiceEliminadp=-1;
     if(motor->huboPowerUpEliminado(indiceEliminadp)){
@@ -424,14 +418,18 @@ void PantallaJuego::eliminarOrbe(int indice){
 }
 void PantallaJuego::sincronizarPelotasExtra(){
     int nuevaCant= motor->getPartida()->getCantidadPelotas();
-    QGraphicsEllipseItem** nuevaLista= new QGraphicsEllipseItem*[nuevaCant];
+    QGraphicsPixmapItem** nuevaLista= new QGraphicsPixmapItem*[nuevaCant];
 
-    for(int i=0;i<nuevaCant-1;i++){
+    for(int i=0; i<nuevaCant-1; i++){
         nuevaLista[i]= itemsPelotas[i];
     }
-    Pelota* nueva= motor->getPartida()->getPelotas()[nuevaCant-1];
-    QGraphicsEllipseItem* item= escena->addEllipse(0,0,nueva->getDiametro(),nueva->getDiametro(),QPen(Qt::white),QBrush(Qt::white));
-    item->setPos(nueva->getX(), nueva->getY());
+    Pelota* nueva= motor->getPartida()->getPelotas()[nuevaCant - 1];
+
+    QPixmap spriteEscalado= spritePelota.scaled(nueva->getDiametro(), nueva->getDiametro(),
+                                                 Qt::KeepAspectRatio, Qt::SmoothTransformation);
+    QGraphicsPixmapItem* item= escena->addPixmap(spriteEscalado);
+    item->setPos(nueva->getX(),nueva->getY());
+
     nuevaLista[nuevaCant-1]= item;
 
     delete[] itemsPelotas;
@@ -488,9 +486,9 @@ void PantallaJuego::manejarFinDePartida(){
                 escena->removeItem(itemsPelotas[i]);
                 delete itemsPelotas[i];
 
-                QGraphicsEllipseItem** nuevaListaItems= nullptr;
+                QGraphicsPixmapItem** nuevaListaItems= nullptr;
                 if(cant-1>0){
-                    nuevaListaItems= new QGraphicsEllipseItem*[cant-1];
+                    nuevaListaItems= new QGraphicsPixmapItem*[cant-1];
                     int pos=0;
                     for(int k=0;k<cant;k++){
                         if(k!=i){

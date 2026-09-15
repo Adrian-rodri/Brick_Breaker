@@ -4,5 +4,7 @@
         <file>assets/icono.png</file>
         <file>assets/bloqueSimple.png</file>
         <file>assets/bloqueReforzado.png</file>
+        <file>assets/bloqueBlindado.png</file>
+        <file>assets/pelota.png</file>
     </qresource>
 </RCC>
