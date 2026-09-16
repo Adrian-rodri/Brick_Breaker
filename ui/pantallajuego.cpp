@@ -64,7 +64,9 @@ void PantallaJuego::cargarUi(){
     monedasAcumuladas= 0;
     enPausa= false;
     animandoEntrada= false;
+    animandoPelota= false;
     offsetAnimacion= 0;
+    cargarSonidos();
 
     spriteSimple= QPixmap(":/assets/bloqueSimple.png");
     spriteReforzado= QPixmap(":/assets/bloqueReforzado.png");
@@ -108,7 +110,7 @@ void PantallaJuego::actualizarHUD(){
     lblMonedas->setText(QString("Monedas: %1").arg(monedasAcumuladas));
 
     lblAviso->setVisible(esperando);
-    if(esperando){
+    if(esperando&&!animandoEntrada && !animandoPelota){
         int x= vista->x()+(vista->width()- lblAviso->width())/2;
         int y= vista->y()+vista->height()-120;
         lblAviso->move(x, y);
@@ -158,6 +160,23 @@ void PantallaJuego::cargarHUD(QVBoxLayout* layoutVertical){
                             "background-color: rgba(0,0,0,150);"
                             "border-radius: 6px;");
 
+}
+void PantallaJuego::cargarSonidos() {
+    sonidoToque = new QSoundEffect(this);
+    sonidoToque->setSource(QUrl::fromLocalFile(":/assets/toque.wav"));
+    sonidoToque->setVolume(0.8f);
+
+    sonidoDestruir = new QSoundEffect(this);
+    sonidoDestruir->setSource(QUrl::fromLocalFile(":/assets/pop.wav"));
+    sonidoDestruir->setVolume(0.9f);
+
+    sonidoBloqueado= new QSoundEffect(this);
+    sonidoBloqueado->setSource(QUrl::fromLocalFile(":/assets/block.mp3"));
+    sonidoBloqueado->setVolume(0.8f);
+
+    sonidoMoneda= new QSoundEffect(this);
+    sonidoMoneda->setSource(QUrl::fromLocalFile(":/assets/coin.wav"));
+    sonidoMoneda->setVolume(0.4f);
 }
 QPixmap PantallaJuego::obtenerSprite(Bloque* bloque, int fila){
     QPixmap hoja;
@@ -253,7 +272,7 @@ void PantallaJuego::keyPressEvent(QKeyEvent* event){
     }else if(event->key()==Qt::Key_Right || event->key()== Qt::Key_D){
         moverDer= true;
     }else if(event->key()==Qt::Key_W || event->key()==Qt::Key_Up || event->key()==Qt::Key_Space){
-        if(esperando){
+        if(esperando&&!animandoEntrada && !animandoPelota){
             esperando= false;
             motor->lanzarPelotaInicial();
         }
@@ -273,21 +292,43 @@ void PantallaJuego::keyReleaseEvent(QKeyEvent* event){
 }
 void PantallaJuego::actualizarJuego(){
     if(animandoEntrada){
-        offsetAnimacion += 12;
-        if(offsetAnimacion >= 0){
+        offsetAnimacion += 10;
+
+        double progreso= 1.0-(double)(-offsetAnimacion)/480.0;
+        if(progreso<0.0){
+            progreso= 0.0;
+        }
+        if(progreso>1.0){
+            progreso= 1.0;
+        }
+        double xActual= plataformaXInicio+(plataformaXDestino-plataformaXInicio)*progreso;
+
+        Plataforma* plat= motor->getPartida()->getPlataforma();
+        plat->setPosicion(xActual, plat->getY());
+        itemPlataforma->setPos(xActual, plat->getY());
+
+        if(offsetAnimacion>=0){
             offsetAnimacion = 0;
             animandoEntrada = false;
+            animandoPelota = true;
+
+            plat->setPosicion(plataformaXDestino, plat->getY());
+            itemPlataforma->setPos(plataformaXDestino, plat->getY());
+        }
+        actualizarPosicionesBloques();
+        actualizarHUD();
+        return;
+    }
+    if(animandoPelota){
+        escalaJugador += 0.01;
+        if(escalaJugador >= 1.0){
             escalaJugador = 1.0;
-        } else {
-            escalaJugador+=0.01;
-            if(escalaJugador > 1.0) escalaJugador = 1.0;
+            animandoPelota = false;
         }
         int cant= motor->getPartida()->getCantidadPelotas();
         for(int i=0;i<cant;i++){
             itemsPelotas[i]->setScale(escalaJugador);
         }
-
-        actualizarPosicionesBloques();
         actualizarHUD();
         return;
     }
@@ -298,6 +339,7 @@ void PantallaJuego::actualizarJuego(){
 
     int fila, col;
     if(motor->huboDestruccion(fila,col)){
+        sonidoDestruir->play();
         escena->removeItem(ptrBloques[fila][col]);
         delete ptrBloques[fila][col];
         ptrBloques[fila][col]= nullptr;
@@ -307,11 +349,12 @@ void PantallaJuego::actualizarJuego(){
             agregarPowerUp(power);
             delete power;
         }
+
     }else if(motor->huboToque(fila,col)){
         Bloque* bloqueActualizado= motor->getPartida()->getNivel()->getMatriz()[fila][col];
         QPixmap sprite= obtenerSprite(bloqueActualizado, fila);
         ptrBloques[fila][col]->setBrush(QBrush(sprite));
-
+        sonidoToque->play();
     }
     int indiceEliminadp=-1;
     if(motor->huboPowerUpEliminado(indiceEliminadp)){
@@ -336,6 +379,7 @@ void PantallaJuego::actualizarJuego(){
     int valorRecogido;
     if(motor->huboOrbeRecogido(valorRecogido)){
         monedasAcumuladas+= valorRecogido;
+        sonidoMoneda->play();
     }
 
     actualizarPosiciones();
@@ -514,23 +558,27 @@ void PantallaJuego::regenerarNivel(bool fueGameOver){
     animandoEntrada= true;
     offsetAnimacion= -480;
     escalaJugador= 0.0;
+    animandoPelota= false;
     totalBloques= motor->getPartida()->getNivel()->getBloquesRestantes();
 
     Plataforma* plat= motor->getPartida()->getPlataforma();
-    plat->setPosicion((LIMITE_PANTALLA-plat->getAncho())/2, plat->getY());
+    plataformaXInicio= plat->getX();
+    plataformaXDestino= (LIMITE_PANTALLA-plat->getAncho())/2;
+
+
+    double centroPlataforma= plataformaXDestino+plat->getAncho()/2.0;
 
     if(fueGameOver){
         motor->getPartida()->reiniciarVidasYPuntaje();
-        motor->getPartida()->agregarPelotaExtra(LIMITE_PANTALLA/2,420);
+        motor->getPartida()->agregarPelotaExtra(centroPlataforma-10,420);
         dibujarPelotas();
     }else{
         int cant= motor->getPartida()->getCantidadPelotas();
         Pelota** pelotas= motor->getPartida()->getPelotas();
         for(int i=0;i<cant;i++){
-            pelotas[i]->setPosicion(LIMITE_PANTALLA/2, 420);
+            pelotas[i]->setPosicion(centroPlataforma-pelotas[i]->getDiametro()/2.0, 420);
         }
     }
-
     int cant= motor->getPartida()->getCantidadPelotas();
     Pelota** pelotas= motor->getPartida()->getPelotas();
     for(int i=0;i<cant;i++){

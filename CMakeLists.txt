@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.19)
 project(BrickBreaker LANGUAGES CXX)
 
-find_package(Qt6 6.5 REQUIRED COMPONENTS Core Widgets)
+find_package(Qt6 6.5 REQUIRED COMPONENTS Core Widgets Multimedia)
 
 qt_standard_project_setup()
 
@@ -55,6 +55,7 @@ target_link_libraries(BrickBreaker
     PRIVATE
         Qt::Core
         Qt::Widgets
+        Qt::Multimedia
 )
 
 install(TARGETS BrickBreaker

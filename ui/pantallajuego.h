@@ -8,6 +8,7 @@
 #include <QTimer>
 #include <QElapsedTimer>
 #include <QLabel>
+#include <QSoundEffect>
 
 #include "partida.h"
 #include "powerup.h"
@@ -39,6 +40,12 @@ private:
     void actualizarJuego();
     void manejarFinDePartida();
     void regenerarNivel(bool fueGameOver);
+    //effects
+    QSoundEffect* sonidoToque;
+    QSoundEffect* sonidoDestruir;
+    QSoundEffect* sonidoBloqueado;
+    QSoundEffect* sonidoMoneda;
+    void cargarSonidos();
     //movimiento
     bool moverIzq;
     bool moverDer;
@@ -72,6 +79,9 @@ private:
     void actualizarPosicionesBloques();
     void limpiarItemsPowerUpsYOrbes();
     double escalaJugador;
+    bool animandoPelota;
+    double plataformaXInicio;
+    double plataformaXDestino;
     //elemntos ui
     int filas;
     int col;

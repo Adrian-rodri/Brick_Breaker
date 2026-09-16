@@ -6,5 +6,9 @@
         <file>assets/bloqueReforzado.png</file>
         <file>assets/bloqueBlindado.png</file>
         <file>assets/pelota.png</file>
+        <file>assets/block.mp3</file>
+        <file>assets/coin.wav</file>
+        <file>assets/toque.wav</file>
+        <file>assets/pop.wav</file>
     </qresource>
 </RCC>
