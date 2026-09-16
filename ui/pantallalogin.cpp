@@ -55,8 +55,9 @@ void PantallaLogin::cargarUI(){
     lblPass->setStyleSheet(estiloLblForm);
 
     QString estiloLineEdit= "background-color: #EEEEEE;"
+                             "font-size: 25px;"
                              "color: #0B0909;"
-                             "font-family: '8514oem';";
+                             "font-family: 'Segoe UI Black';";
     lineUser= new QLineEdit();
     lineUser->setStyleSheet(estiloLineEdit);
 

@@ -103,11 +103,16 @@ void PantallaJuego::cargarUi(){
     this->setFocus();
 }
 void PantallaJuego::actualizarHUD(){
-    lblVidas->setText(QString("Vidas: %1").arg(motor->partidaActual->getVidas()));
-    lblPuntos->setText(QString("Puntos: %1").arg(motor->partidaActual->getPuntaje()));
-    lblBloques->setText(QString("Bloques: %1 / %2").arg(motor->partidaActual->getNivel()->getBloquesRestantes()).arg(totalBloques));
-    lblTiempo->setText(QString("Tiempo: %1 secs").arg(cronometro.elapsed()/1000));
-    lblMonedas->setText(QString("Monedas: %1").arg(monedasAcumuladas));
+    QString vida;
+    for(int i=0;i<motor->getPartida()->getVidas();i++){
+        vida+="💗 ";
+    }
+    lblVidas->setText(vida);
+
+    lblPuntos->setText("      ");
+    lblBloques->setText(QString("%1 / %2 🧱").arg(motor->partidaActual->getNivel()->getBloquesRestantes()).arg(totalBloques));
+    lblTiempo->setText(QString("🕛 %1 secs").arg(cronometro.elapsed()/1000));
+    lblMonedas->setText(QString("%1 🪙").arg(monedasAcumuladas));
 
     lblAviso->setVisible(esperando);
     if(esperando&&!animandoEntrada && !animandoPelota){
@@ -122,7 +127,7 @@ void PantallaJuego::cargarHUD(QVBoxLayout* layoutVertical){
     layoutHUD->setContentsMargins(20, 10, 20, 10);
 
     QString estiloLabel="color: "+COLORFONT+";"
-                        "font-size: 18px;"
+                        "font-size: 20px;"
                         "font-weight: bold;"
                         "background-color: transparent;";
 
@@ -133,8 +138,12 @@ void PantallaJuego::cargarHUD(QVBoxLayout* layoutVertical){
     lblMonedas= new QLabel();
 
     lblVidas->setStyleSheet(estiloLabel);
+    lblVidas->setFixedWidth(200);
+    lblVidas->setAlignment(Qt::AlignLeft);
     lblPuntos->setStyleSheet(estiloLabel);
     lblTiempo->setStyleSheet(estiloLabel);
+    lblTiempo->setFixedWidth(200);
+    lblTiempo->setAlignment(Qt::AlignRight);
     lblBloques->setStyleSheet(estiloLabel);
     lblMonedas->setStyleSheet(estiloLabel);
 
@@ -171,7 +180,7 @@ void PantallaJuego::cargarSonidos() {
     sonidoDestruir->setVolume(0.9f);
 
     sonidoBloqueado= new QSoundEffect(this);
-    sonidoBloqueado->setSource(QUrl::fromLocalFile(":/assets/block.mp3"));
+    sonidoBloqueado->setSource(QUrl::fromLocalFile(":/assets/block.wav"));
     sonidoBloqueado->setVolume(0.8f);
 
     sonidoMoneda= new QSoundEffect(this);
@@ -199,7 +208,7 @@ QPixmap PantallaJuego::obtenerSprite(Bloque* bloque, int fila){
         filaSprite= bloque->getFrameSprite(fila);
         break;
     }}
-\
+
 
     return hoja.copy(columna*BRICK_ANCHO, filaSprite*BRICK_ALTO, BRICK_ANCHO, BRICK_ALTO);
 }
@@ -334,7 +343,7 @@ void PantallaJuego::actualizarJuego(){
     }
     EstadisticasJugador stats;
     stats.damage= 1;
-    stats.tieneMejoraArmadura= true;
+    stats.tieneMejoraArmadura= false;
     motor->actualizarJuego(moverIzq,moverDer,esperando,stats);
 
     int fila, col;
@@ -354,7 +363,11 @@ void PantallaJuego::actualizarJuego(){
         Bloque* bloqueActualizado= motor->getPartida()->getNivel()->getMatriz()[fila][col];
         QPixmap sprite= obtenerSprite(bloqueActualizado, fila);
         ptrBloques[fila][col]->setBrush(QBrush(sprite));
-        sonidoToque->play();
+        if(bloqueActualizado->getTipoBloque()==BLINDADO && !stats.tieneMejoraArmadura){
+            sonidoBloqueado->play();
+        }else{
+            sonidoToque->play();
+        }
     }
     int indiceEliminadp=-1;
     if(motor->huboPowerUpEliminado(indiceEliminadp)){
@@ -534,6 +547,11 @@ void PantallaJuego::togglePausa(){
     }
     enPausa= true;
     timerJuego->stop();
+
+    // Reset de inputs para que no queden "pegados" durante el diálogo
+    moverIzq= false;
+    moverDer= false;
+
     QMessageBox cuadro(this);
     cuadro.setWindowTitle("Pausa");
     cuadro.setText("Juego En Pausa");
@@ -547,6 +565,12 @@ void PantallaJuego::togglePausa(){
         ventana->cambiarPantalla(pantallaMenu);
         return;
     }
+
+    //Reset otra vez al volver, por si el usuario tocó teclas mientras
+    //el diálogo tenía el foco (esos releases no le llegan a PantallaJuego)
+    moverIzq= false;
+    moverDer= false;
+
     enPausa= false;
     timerJuego->start(16);
     this->setFocus();
@@ -570,7 +594,7 @@ void PantallaJuego::regenerarNivel(bool fueGameOver){
 
     if(fueGameOver){
         motor->getPartida()->reiniciarVidasYPuntaje();
-        motor->getPartida()->agregarPelotaExtra(centroPlataforma-10,420);
+        motor->getPartida()->agregarPelotaExtra(centroPlataforma-20,420);
         dibujarPelotas();
     }else{
         int cant= motor->getPartida()->getCantidadPelotas();
