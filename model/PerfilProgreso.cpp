@@ -3,9 +3,9 @@
 PerfilProgreso::PerfilProgreso(){
     creditos=0;
     mapaMaxDesbloqueado=1;
-    nivelDañoBola=0;
-    nivelMultiplicadorMonedas=0;
-    nivelVelocidadBola=0;
+    nivelDañoBola=1;
+    nivelMultiplicadorMonedas=1;
+    nivelVelocidadBola=1;
     desbloqueoBlindaje=false;
     multiplicador=1.0;
 }

@@ -33,7 +33,7 @@ private:
     int cantidadPowerUps;
     int cantidadOrbes;
     int monedasAcumuladas;//moverlo a perfilprogrseo despues
-
+    EstadisticasJugador stats;
     bool enPausa;
     void togglePausa();
 

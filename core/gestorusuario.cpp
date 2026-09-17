@@ -131,7 +131,9 @@ void GestorUsuario::crearArchivosUsuario(Usuario &usuario){//crear los archivos 
     }
     ofstream archivoLogros(rutaCarpeta+"/logros.bbk",ios::app);
     archivoLogros.close();
-    ofstream archivoProgreso(rutaCarpeta+"/progreso.bbk",ios::app);
+    ofstream archivoProgreso(rutaCarpeta+"/progreso.bbk", ios::binary);
+    PerfilProgreso perfilInicial;
+    perfilInicial.guardar(archivoProgreso);
     archivoProgreso.close();
 }
 void GestorUsuario::agregarUsuarioRAM(string nuevoUsername){//agregar el user al puntero en RAM

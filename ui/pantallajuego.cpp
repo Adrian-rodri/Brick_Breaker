@@ -61,12 +61,27 @@ void PantallaJuego::cargarUi(){
     cantidadPowerUps= 0;
     itemsOrbes= nullptr;
     cantidadOrbes=0;
-    monedasAcumuladas= 0;
     enPausa= false;
     animandoEntrada= false;
     animandoPelota= false;
     offsetAnimacion= 0;
     cargarSonidos();
+
+    VentanaPrincipal* ventana= (VentanaPrincipal*)this->window();
+    if(ventana->gestorUsers->usuarioActual!=nullptr){
+        monedasAcumuladas= ventana->gestorUsers->usuarioActual->getPerfil().getCreditos();
+    }else{
+        monedasAcumuladas= 0;
+    }
+
+    if(ventana->gestorUsers->usuarioActual!=nullptr){
+        PerfilProgreso& perfil= ventana->gestorUsers->usuarioActual->getPerfil();
+        stats.damage= 1 + perfil.getNivelDañoBola();
+        stats.tieneMejoraArmadura= perfil.getDesbloqueoBlindaje();
+    }else{
+        stats.damage= 1;
+        stats.tieneMejoraArmadura= false;
+    }
 
     spriteSimple= QPixmap(":/assets/bloqueSimple.png");
     spriteReforzado= QPixmap(":/assets/bloqueReforzado.png");
@@ -343,9 +358,6 @@ void PantallaJuego::actualizarJuego(){
         actualizarHUD();
         return;
     }
-    EstadisticasJugador stats;
-    stats.damage= 1;
-    stats.tieneMejoraArmadura= false;
     motor->actualizarJuego(moverIzq,moverDer,esperando,stats);
 
     int fila, col;
@@ -360,19 +372,25 @@ void PantallaJuego::actualizarJuego(){
             agregarPowerUp(power);
             delete power;
         }
-        sonidoDestruir[indiceDestruir]->play();
-        indiceDestruir= (indiceDestruir + 1) % 3;
+        if(sonidoDestruir[indiceDestruir]->status() == QSoundEffect::Ready){
+            sonidoDestruir[indiceDestruir]->play();
+            indiceDestruir = (indiceDestruir + 1) % 3;
+        }
 
     }else if(motor->huboToque(fila,col)){
         Bloque* bloqueActualizado= motor->getPartida()->getNivel()->getMatriz()[fila][col];
         QPixmap sprite= obtenerSprite(bloqueActualizado, fila);
         ptrBloques[fila][col]->setBrush(QBrush(sprite));
         if(bloqueActualizado->getTipoBloque()==BLINDADO && !stats.tieneMejoraArmadura){
-            sonidoBloqueado[indiceBloquead]->play();
-            indiceBloquead= (indiceBloquead +1)%3;
+            if(sonidoBloqueado[indiceBloquead]->status() == QSoundEffect::Ready){
+                sonidoBloqueado[indiceBloquead]->play();
+                indiceBloquead = (indiceBloquead + 1) % 3;
+            }
         }else{
-            sonidosToque[indiceToque]->play();
-            indiceToque= (indiceToque+1)%3;
+            if(sonidosToque[indiceToque]->status() == QSoundEffect::Ready){
+                sonidosToque[indiceToque]->play();
+                indiceToque = (indiceToque + 1) % 3;
+            }
         }
     }
     int indiceEliminadp=-1;
@@ -397,18 +415,18 @@ void PantallaJuego::actualizarJuego(){
     }
     int valorRecogido;
     if(motor->huboOrbeRecogido(valorRecogido)){
-        monedasAcumuladas+= valorRecogido;
-<<<<<<< HEAD
-        sonidoMoneda->play();
-
         VentanaPrincipal* ventana= (VentanaPrincipal*)this->window();
+        int valorFinal= valorRecogido;
         if(ventana->gestorUsers->usuarioActual!=nullptr){
-            ventana->gestorUsers->usuarioActual->getPerfil().sumarCreditos(valorRecogido);
+            valorFinal= (int)(valorRecogido *ventana->gestorUsers->usuarioActual->getPerfil().getMultiplicador());
+            ventana->gestorUsers->usuarioActual->getPerfil().sumarCreditos(valorFinal);
         }
-=======
-        sonidoMoneda[indiceMoneda]->play();
-        indiceMoneda= (indiceMoneda+1)%3;
->>>>>>> 6e574e2779c48558db3a6da5ffc528e6c8f788b8
+        monedasAcumuladas+= valorFinal;
+
+        if(sonidoMoneda[indiceMoneda]->status()==QSoundEffect::Ready){
+            sonidoMoneda[indiceMoneda]->play();
+            indiceMoneda= (indiceMoneda+1)%3;
+        }
     }
 
     actualizarPosiciones();

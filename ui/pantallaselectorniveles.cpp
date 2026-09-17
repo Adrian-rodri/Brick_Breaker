@@ -48,6 +48,6 @@ void PantallaSelectorNiveles::cargarUi(){
 }
 void PantallaSelectorNiveles::irAlNivel(int numLvl){
     VentanaPrincipal* ventana = (VentanaPrincipal*)this->window();
-    PantallaJuego* pantallaJuego = new PantallaJuego(numLvl);
+    PantallaJuego* pantallaJuego = new PantallaJuego(numLvl,ventana);
     ventana->cambiarPantalla(pantallaJuego);
 }

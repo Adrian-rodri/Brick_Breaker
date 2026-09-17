@@ -121,7 +121,7 @@ void PantallaMenuPrincipal::cargarUI() {
 
 void PantallaMenuPrincipal::irAlJuego() {
     VentanaPrincipal* ventana = (VentanaPrincipal*)this->window();
-    PantallaJuego* pantallaJuego = new PantallaJuego(2);
+    PantallaJuego* pantallaJuego = new PantallaJuego(2,ventana);
     ventana->cambiarPantalla(pantallaJuego);
 }
 
