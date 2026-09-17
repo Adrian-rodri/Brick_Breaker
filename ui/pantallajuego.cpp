@@ -171,21 +171,27 @@ void PantallaJuego::cargarHUD(QVBoxLayout* layoutVertical){
 
 }
 void PantallaJuego::cargarSonidos() {
-    sonidoToque = new QSoundEffect(this);
-    sonidoToque->setSource(QUrl::fromLocalFile(":/assets/toque.wav"));
-    sonidoToque->setVolume(0.8f);
+    for(int i=0;i<3;i++){
+        sonidosToque[i]= new QSoundEffect(this);
+        sonidosToque[i]->setSource(QUrl("qrc:/assets/toque.wav"));
+        sonidosToque[i]->setVolume(0.8f);
 
-    sonidoDestruir = new QSoundEffect(this);
-    sonidoDestruir->setSource(QUrl::fromLocalFile(":/assets/pop.wav"));
-    sonidoDestruir->setVolume(0.9f);
+        sonidoDestruir[i]= new QSoundEffect(this);
+        sonidoDestruir[i]->setSource(QUrl("qrc:/assets/pop.wav"));
+        sonidoDestruir[i]->setVolume(0.9f);
 
-    sonidoBloqueado= new QSoundEffect(this);
-    sonidoBloqueado->setSource(QUrl::fromLocalFile(":/assets/block.wav"));
-    sonidoBloqueado->setVolume(0.8f);
+        sonidoBloqueado[i]= new QSoundEffect(this);
+        sonidoBloqueado[i]->setSource(QUrl("qrc:/assets/block.wav"));
+        sonidoBloqueado[i]->setVolume(0.8f);
 
-    sonidoMoneda= new QSoundEffect(this);
-    sonidoMoneda->setSource(QUrl::fromLocalFile(":/assets/coin.wav"));
-    sonidoMoneda->setVolume(0.4f);
+        sonidoMoneda[i]= new QSoundEffect(this);
+        sonidoMoneda[i]->setSource(QUrl("qrc:/assets/coin.wav"));
+        sonidoMoneda[i]->setVolume(0.4f);
+
+    }
+
+
+
 }
 QPixmap PantallaJuego::obtenerSprite(Bloque* bloque, int fila){
     QPixmap hoja;
@@ -348,7 +354,7 @@ void PantallaJuego::actualizarJuego(){
 
     int fila, col;
     if(motor->huboDestruccion(fila,col)){
-        sonidoDestruir->play();
+
         escena->removeItem(ptrBloques[fila][col]);
         delete ptrBloques[fila][col];
         ptrBloques[fila][col]= nullptr;
@@ -358,15 +364,19 @@ void PantallaJuego::actualizarJuego(){
             agregarPowerUp(power);
             delete power;
         }
+        sonidoDestruir[indiceDestruir]->play();
+        indiceDestruir= (indiceDestruir + 1) % 3;
 
     }else if(motor->huboToque(fila,col)){
         Bloque* bloqueActualizado= motor->getPartida()->getNivel()->getMatriz()[fila][col];
         QPixmap sprite= obtenerSprite(bloqueActualizado, fila);
         ptrBloques[fila][col]->setBrush(QBrush(sprite));
         if(bloqueActualizado->getTipoBloque()==BLINDADO && !stats.tieneMejoraArmadura){
-            sonidoBloqueado->play();
+            sonidoBloqueado[indiceBloquead]->play();
+            indiceBloquead= (indiceBloquead +1)%3;
         }else{
-            sonidoToque->play();
+            sonidosToque[indiceToque]->play();
+            indiceToque= (indiceToque+1)%3;
         }
     }
     int indiceEliminadp=-1;
@@ -392,7 +402,8 @@ void PantallaJuego::actualizarJuego(){
     int valorRecogido;
     if(motor->huboOrbeRecogido(valorRecogido)){
         monedasAcumuladas+= valorRecogido;
-        sonidoMoneda->play();
+        sonidoMoneda[indiceMoneda]->play();
+        indiceMoneda= (indiceMoneda+1)%3;
     }
 
     actualizarPosiciones();
@@ -466,7 +477,9 @@ void PantallaJuego::agregarPowerUp(PowerUp* nuevoPower){
 }
 
 void PantallaJuego::eliminarPowerUp(int indice){
-    if(indice<0 || indice>=cantidadPowerUps) return;
+    if(indice<0 || indice>=cantidadPowerUps) {
+        return;
+    }
 
     escena->removeItem(itemsPowerUps[indice]);
     delete itemsPowerUps[indice];
@@ -547,8 +560,6 @@ void PantallaJuego::togglePausa(){
     }
     enPausa= true;
     timerJuego->stop();
-
-    // Reset de inputs para que no queden "pegados" durante el diálogo
     moverIzq= false;
     moverDer= false;
 
@@ -565,9 +576,6 @@ void PantallaJuego::togglePausa(){
         ventana->cambiarPantalla(pantallaMenu);
         return;
     }
-
-    //Reset otra vez al volver, por si el usuario tocó teclas mientras
-    //el diálogo tenía el foco (esos releases no le llegan a PantallaJuego)
     moverIzq= false;
     moverDer= false;
 
