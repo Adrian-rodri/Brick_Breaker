@@ -22,7 +22,7 @@ private:
     QPushButton *btnRecords;
     QPushButton *btnSalir;
     QPushButton *btnAyuda;
-    QPushButton *btnLogros;
+    QPushButton *btnTienda;
     QPushButton *btnOpciones;
 
     QVBoxLayout *layoutPrincipal;

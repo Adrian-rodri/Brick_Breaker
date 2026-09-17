@@ -56,6 +56,7 @@ void GestorUsuario::iniciarSesion(const string& username){
 }
 void GestorUsuario::cerrarSesion(){
     if(usuarioActual!=nullptr){
+        guardarProgreso(usuarioActual->getUsername(), usuarioActual->getPerfil());
         delete usuarioActual;
         usuarioActual= nullptr;
     }
@@ -96,6 +97,12 @@ Usuario* GestorUsuario::cargarPerfil(const string &username){
     archivo.read((char*)&mejorPuntuacion,sizeof(mejorPuntuacion));
 
     Usuario *perfilCargado= new Usuario(nombre,user,pass,puntos,mejorPuntuacion);
+
+    PerfilProgreso* progreso= cargarProgreso(username);
+    if(progreso!=nullptr){
+        perfilCargado->setPerfil(*progreso);
+        delete progreso; //ya se copio el contenido adentro de perfilCargado
+    }
 
     return perfilCargado;
 }
@@ -173,6 +180,31 @@ string GestorUsuario::leerString(ifstream& archivo){
     archivo.read(&result[0],length);//guarda el texto como tal
     return result;
 }
+void GestorUsuario::guardarProgreso(const string& username, PerfilProgreso& perfil){
+    string rutaArchivo= "data/users/"+username+"/progreso.bbk";
+    ofstream archivo(rutaArchivo, ios::binary);
+
+    if(archivo.is_open()){
+        perfil.guardar(archivo);
+        archivo.close();
+    }
+}
+
+PerfilProgreso* GestorUsuario::cargarProgreso(const string& username){
+    string rutaArchivo= "data/users/"+username+"/progreso.bbk";
+    ifstream archivo(rutaArchivo, ios::binary);
+
+    if(!archivo.is_open()){
+        return nullptr;
+    }
+
+    PerfilProgreso* perfilCargado= new PerfilProgreso();
+    perfilCargado->cargar(archivo);
+    archivo.close();
+
+    return perfilCargado;
+}
+
 //destructor
 GestorUsuario::~GestorUsuario(){
     liberarMemoria();

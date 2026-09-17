@@ -64,7 +64,6 @@ private:
 
     //hud
     QLabel* lblVidas;
-    QLabel* lblPuntos;
     QLabel* lblTiempo;
     QLabel* lblBloques;
     QLabel* lblMonedas;
@@ -99,5 +98,6 @@ private:
     void dibujarBloques();
     void dibujarPlataforma();
     void dibujarPelotas();
+    void guardarProgresoActual();
 };
 #endif // PANTALLAJUEGO_H

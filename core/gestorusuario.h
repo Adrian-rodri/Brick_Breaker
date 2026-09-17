@@ -2,6 +2,7 @@
 #define GESTORUSUARIO_H
 
 #include "usuario.h"
+#include "PerfilProgreso.h"
 #include <fstream>
 
 class GestorUsuario
@@ -30,6 +31,9 @@ public:
     bool agregarUsuarioDisco(Usuario &nuevoUsuario);
     void crearArchivosUsuario(Usuario &usuario);
     void liberarMemoria();
+
+    void guardarProgreso(const string& username, PerfilProgreso& perfil);
+    PerfilProgreso* cargarProgreso(const string& username);
 };
 
 #endif // GESTORUSUARIO_H

@@ -69,3 +69,23 @@ void PerfilProgreso::setMultiplicador(double nuevoValor){
     }
     multiplicador=nuevoValor;
 }
+
+void PerfilProgreso::guardar(std::ofstream& archivo) const{
+    archivo.write((char*)&creditos, sizeof(creditos));
+    archivo.write((char*)&mapaMaxDesbloqueado, sizeof(mapaMaxDesbloqueado));
+    archivo.write((char*)&nivelDañoBola, sizeof(nivelDañoBola));
+    archivo.write((char*)&nivelMultiplicadorMonedas, sizeof(nivelMultiplicadorMonedas));
+    archivo.write((char*)&nivelVelocidadBola, sizeof(nivelVelocidadBola));
+    archivo.write((char*)&desbloqueoBlindaje, sizeof(desbloqueoBlindaje));
+    archivo.write((char*)&multiplicador, sizeof(multiplicador));
+}
+
+void PerfilProgreso::cargar(std::ifstream& archivo){
+    archivo.read((char*)&creditos, sizeof(creditos));
+    archivo.read((char*)&mapaMaxDesbloqueado, sizeof(mapaMaxDesbloqueado));
+    archivo.read((char*)&nivelDañoBola, sizeof(nivelDañoBola));
+    archivo.read((char*)&nivelMultiplicadorMonedas, sizeof(nivelMultiplicadorMonedas));
+    archivo.read((char*)&nivelVelocidadBola, sizeof(nivelVelocidadBola));
+    archivo.read((char*)&desbloqueoBlindaje, sizeof(desbloqueoBlindaje));
+    archivo.read((char*)&multiplicador, sizeof(multiplicador));
+}

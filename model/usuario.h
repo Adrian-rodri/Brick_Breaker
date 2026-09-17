@@ -2,6 +2,7 @@
 #define USUARIO_H
 
 #include <string>
+#include "PerfilProgreso.h"
 
 using namespace std;
 class Usuario
@@ -15,6 +16,9 @@ public:
     const string& getPassword() const;
     int getPuntos() const;
     int getMejorTiempo() const;
+
+    PerfilProgreso& getPerfil();
+    void setPerfil(const PerfilProgreso& nuevoPerfil);
 
     //setters
     void setNombre(string& nombre) ;
@@ -33,6 +37,8 @@ private:
     //estadisticas
     int puntos;
     int mejorTiempo;
+
+    PerfilProgreso perfil;
 
 };
 

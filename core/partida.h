@@ -7,7 +7,6 @@
 class Partida {
 private:
     int vidas;
-    int puntaje;
     int numNivelAct;
     Nivel* nivelActual;
     Plataforma* plataforma;
@@ -17,14 +16,12 @@ private:
 public:
     Partida(int nivel);
     ~Partida();
-    void sumarPuntos(int puntos);
     void perderVida();
     void ganarVida();
     bool estaTerminada();
     bool nivelCompletado();
-    void reiniciarVidasYPuntaje();
+    void reiniciarVidas();
     int getVidas();
-    int getPuntaje();
     Nivel* getNivel() const;
     Plataforma* getPlataforma() const;
     Pelota** getPelotas() const;

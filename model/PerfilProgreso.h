@@ -1,6 +1,8 @@
 #ifndef PERFILPROGRESO_H
 #define PERFILPROGRESO_H
 
+#include <fstream>
+
 class PerfilProgreso{
 private:
     int creditos;
@@ -38,6 +40,9 @@ public:
 
     void desbloquearBlindaje();
     void setMultiplicador(double nuevoValor);
+
+    void guardar(std::ofstream& archivo) const;
+    void cargar(std::ifstream& archivo);
 };
 
 #endif // PERFILPROGRESO_H

@@ -3,11 +3,10 @@
 
 Partida::Partida(int nivel) {
     vidas= 3;
-    puntaje= 0;
     numNivelAct= nivel;
     nivelActual= new Nivel(numNivelAct);
     plataforma= new Plataforma((LIMITE_PANTALLA - PLATAFORMA_ANCHO)/2,440,
-        PLATAFORMA_ANCHO,PLATAFORMA_ALTO);
+                                PLATAFORMA_ANCHO,PLATAFORMA_ALTO);
     cantidadPelotas=1;
     listaPelotas= new Pelota*[cantidadPelotas];
     listaPelotas[0]= new Pelota(LIMITE_PANTALLA/2, 420, 20);
@@ -31,9 +30,8 @@ void Partida::liberarPelotas(){
     }
     cantidadPelotas=0;
 }
-void Partida::reiniciarVidasYPuntaje(){
+void Partida::reiniciarVidas(){
     vidas= 3;
-    puntaje= 0;
 }
 void Partida::agregarPelotaExtra(int posX, int posY){
     Pelota** nuevaLista= new Pelota*[cantidadPelotas+1];
@@ -71,9 +69,6 @@ void Partida::eliminarPelota(int indice){
     cantidadPelotas--;
 }
 
-void Partida::sumarPuntos(int puntos){
-    puntaje+= puntos;
-}
 void Partida::perderVida(){
     vidas--;
 }
@@ -89,9 +84,6 @@ bool Partida::nivelCompletado(){
 
 int Partida::getVidas(){
     return vidas;
-}
-int Partida::getPuntaje(){
-    return puntaje;
 }
 Nivel* Partida::getNivel() const{
     return nivelActual;

@@ -41,6 +41,13 @@ int Usuario::getMejorTiempo() const{
     return mejorTiempo;
 }
 
+PerfilProgreso& Usuario::getPerfil(){
+    return perfil;
+}
+void Usuario::setPerfil(const PerfilProgreso& nuevoPerfil){
+    perfil= nuevoPerfil;
+}
+
 /*
  * Setters
  */

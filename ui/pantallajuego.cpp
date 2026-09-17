@@ -109,7 +109,7 @@ void PantallaJuego::actualizarHUD(){
     }
     lblVidas->setText(vida);
 
-    lblPuntos->setText("      ");
+    // CAMBIO: se quito la linea de lblPuntos->setText(...) -> ya no se muestra puntaje
     lblBloques->setText(QString("%1 / %2 🧱").arg(motor->partidaActual->getNivel()->getBloquesRestantes()).arg(totalBloques));
     lblTiempo->setText(QString("🕛 %1 secs").arg(cronometro.elapsed()/1000));
     lblMonedas->setText(QString("%1 🪙").arg(monedasAcumuladas));
@@ -127,12 +127,11 @@ void PantallaJuego::cargarHUD(QVBoxLayout* layoutVertical){
     layoutHUD->setContentsMargins(20, 10, 20, 10);
 
     QString estiloLabel="color: "+COLORFONT+";"
-                        "font-size: 20px;"
-                        "font-weight: bold;"
-                        "background-color: transparent;";
+                                                  "font-size: 20px;"
+                                                  "font-weight: bold;"
+                                                  "background-color: transparent;";
 
     lblVidas= new QLabel();
-    lblPuntos= new QLabel();
     lblTiempo=new QLabel();
     lblBloques=new QLabel();
     lblMonedas= new QLabel();
@@ -140,7 +139,6 @@ void PantallaJuego::cargarHUD(QVBoxLayout* layoutVertical){
     lblVidas->setStyleSheet(estiloLabel);
     lblVidas->setFixedWidth(200);
     lblVidas->setAlignment(Qt::AlignLeft);
-    lblPuntos->setStyleSheet(estiloLabel);
     lblTiempo->setStyleSheet(estiloLabel);
     lblTiempo->setFixedWidth(200);
     lblTiempo->setAlignment(Qt::AlignRight);
@@ -153,8 +151,6 @@ void PantallaJuego::cargarHUD(QVBoxLayout* layoutVertical){
     layoutHUD->addStretch();
     layoutHUD->addWidget(lblMonedas);
     layoutHUD->addStretch();
-    layoutHUD->addWidget(lblPuntos);
-    layoutHUD->addStretch();
     layoutHUD->addWidget(lblTiempo);
 
     layoutVertical->addLayout(layoutHUD);
@@ -164,10 +160,10 @@ void PantallaJuego::cargarHUD(QVBoxLayout* layoutVertical){
     lblAviso->setAlignment(Qt::AlignCenter);
     lblAviso->setFixedSize(320, 30);
     lblAviso->setStyleSheet("color: "+COLORFONT+";"
-                            "font-size: 14px;"
-                            "font-weight: bold;"
-                            "background-color: rgba(0,0,0,150);"
-                            "border-radius: 6px;");
+                                                    "font-size: 14px;"
+                                                    "font-weight: bold;"
+                                                    "background-color: rgba(0,0,0,150);"
+                                                    "border-radius: 6px;");
 
 }
 void PantallaJuego::cargarSonidos() {
@@ -264,7 +260,7 @@ void PantallaJuego::dibujarPelotas(){
         Pelota* pelota= motor->partidaActual->getPelotas()[i];
 
         QPixmap spriteEscalado = spritePelota.scaled(pelota->getDiametro(), pelota->getDiametro(),
-                                                      Qt::KeepAspectRatio, Qt::SmoothTransformation);
+                                                     Qt::KeepAspectRatio, Qt::SmoothTransformation);
 
         QGraphicsPixmapItem* item = escena->addPixmap(spriteEscalado);
         item->setPos(pelota->getX(), pelota->getY());
@@ -393,6 +389,11 @@ void PantallaJuego::actualizarJuego(){
     if(motor->huboOrbeRecogido(valorRecogido)){
         monedasAcumuladas+= valorRecogido;
         sonidoMoneda->play();
+
+        VentanaPrincipal* ventana= (VentanaPrincipal*)this->window();
+        if(ventana->gestorUsers->usuarioActual!=nullptr){
+            ventana->gestorUsers->usuarioActual->getPerfil().sumarCreditos(valorRecogido);
+        }
     }
 
     actualizarPosiciones();
@@ -449,6 +450,13 @@ void PantallaJuego::limpiarItemsPowerUpsYOrbes(){
     cantidadOrbes= 0;
 }
 
+void PantallaJuego::guardarProgresoActual(){
+    VentanaPrincipal* ventana= (VentanaPrincipal*)this->window();
+    if(ventana->gestorUsers->usuarioActual!=nullptr){
+        ventana->gestorUsers->guardarProgreso(ventana->gestorUsers->usuarioActual->getUsername(),
+                                              ventana->gestorUsers->usuarioActual->getPerfil());
+    }
+}
 
 void PantallaJuego::agregarPowerUp(PowerUp* nuevoPower){
     QGraphicsRectItem** nuevosItems= new QGraphicsRectItem*[cantidadPowerUps + 1];
@@ -560,6 +568,7 @@ void PantallaJuego::togglePausa(){
 
     cuadro.exec();
     if(cuadro.clickedButton()==btnMenu){
+        guardarProgresoActual();
         VentanaPrincipal* ventana= (VentanaPrincipal*)this->window();
         PantallaMenuPrincipal*  pantallaMenu= new PantallaMenuPrincipal();
         ventana->cambiarPantalla(pantallaMenu);
@@ -593,7 +602,7 @@ void PantallaJuego::regenerarNivel(bool fueGameOver){
     double centroPlataforma= plataformaXDestino+plat->getAncho()/2.0;
 
     if(fueGameOver){
-        motor->getPartida()->reiniciarVidasYPuntaje();
+        motor->getPartida()->reiniciarVidas();
         motor->getPartida()->agregarPelotaExtra(centroPlataforma-20,420);
         dibujarPelotas();
     }else{
@@ -642,25 +651,10 @@ void PantallaJuego::manejarFinDePartida(){
                 if(motor->partidaActual->getCantidadPelotas()<=0){
                     motor->partidaActual->perderVida();
                     motor->limpiarPowerUpsYOrbes();
-                      limpiarItemsPowerUpsYOrbes();
-
-                    for(int i=0;i<cantidadPowerUps;i++){
-                        escena->removeItem(itemsPowerUps[i]);
-                        delete itemsPowerUps[i];
-                    }
-                    delete[] itemsPowerUps;
-                    itemsPowerUps= nullptr;
-                    cantidadPowerUps= 0;
-
-                    for(int i=0;i<cantidadOrbes;i++){
-                        escena->removeItem(itemsOrbes[i]);
-                        delete itemsOrbes[i];
-                    }
-                    delete[] itemsOrbes;
-                    itemsOrbes= nullptr;
-                    cantidadOrbes= 0;
+                    limpiarItemsPowerUpsYOrbes();
 
                     if(motor->partidaActual->estaTerminada()){
+                        guardarProgresoActual();
                         timerJuego->stop();
                         VentanaPrincipal* ventana = (VentanaPrincipal*)this->window();
                         PantallaMenuPrincipal* pantallaMenu = new PantallaMenuPrincipal();
@@ -679,8 +673,9 @@ void PantallaJuego::manejarFinDePartida(){
         }
     }
     if(motor->partidaActual->nivelCompletado()){
-       regenerarNivel(false);
-       motor->limpiarPowerUpsYOrbes();
-       limpiarItemsPowerUpsYOrbes();
+        guardarProgresoActual();
+        regenerarNivel(false);
+        motor->limpiarPowerUpsYOrbes();
+        limpiarItemsPowerUpsYOrbes();
     }
 }
