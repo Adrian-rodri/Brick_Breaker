@@ -41,10 +41,14 @@ private:
     void manejarFinDePartida();
     void regenerarNivel(bool fueGameOver);
     //effects
-    QSoundEffect* sonidoToque;
-    QSoundEffect* sonidoDestruir;
-    QSoundEffect* sonidoBloqueado;
-    QSoundEffect* sonidoMoneda;
+    QSoundEffect* sonidosToque[3];
+    int indiceToque= 0;
+    QSoundEffect* sonidoDestruir[3];
+    int indiceDestruir=0;
+    QSoundEffect* sonidoBloqueado[3];
+    int indiceBloquead=0;
+    QSoundEffect* sonidoMoneda[3];
+    int indiceMoneda=0;
     void cargarSonidos();
     //movimiento
     bool moverIzq;
