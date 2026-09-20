@@ -4,6 +4,8 @@
 #include <QMainWindow>
 #include <QStackedWidget>
 #include <QIcon>
+#include <QMediaPlayer>
+#include <QAudioOutput>
 
 #include "pantallalogin.h"
 #include "gestorusuario.h"
@@ -13,7 +15,7 @@ class VentanaPrincipal : public QMainWindow
 {
     Q_OBJECT
 public:
-     VentanaPrincipal(QWidget *parent=nullptr);
+    VentanaPrincipal(QWidget *parent=nullptr);
     ~VentanaPrincipal() override;
 
     GestorUsuario *gestorUsers;
@@ -21,10 +23,14 @@ public:
     PantallaLogin *pantallaLogin;
     PantallaMenuPrincipal* menuPrincipal;
     void cambiarPantalla(QWidget *pantalla);
+    void actualizarVolumenMusica();
 
 
 private:
+    void iniciarMusica();
     QStackedWidget *stackWidget;
+    QMediaPlayer *reproductorMusica;
+    QAudioOutput *salidaMusica;
 
 };
 

@@ -16,4 +16,8 @@ const int PLATAFORMA_ANCHO=70;
 const int PLATAFORMA_ALTO=10;
 
 const int LIMITE_PANTALLA=800;
+
+extern double VOLUMEN_GLOBAL;
+void cargarConfiguracion();
+void guardarConfiguracion();
 #endif // CONSTANTES_H

@@ -1,5 +1,6 @@
 #include "gestorusuario.h"
 #include "usuario.h"
+#include "constantes.h"
 
 #include <fstream>
 #include <filesystem>
@@ -61,7 +62,7 @@ void GestorUsuario::cerrarSesion(){
         usuarioActual= nullptr;
     }
 }
-bool GestorUsuario::agregarUsuarioDisco(Usuario &nuevoUsuario){//guardar el user en memoria (persisitecnia)
+bool GestorUsuario::agregarUsuarioDisco(Usuario &nuevoUsuario){
     if(existeUsuario(nuevoUsuario.getUsername())){
         return false;
     }
@@ -101,7 +102,7 @@ Usuario* GestorUsuario::cargarPerfil(const string &username){
     PerfilProgreso* progreso= cargarProgreso(username);
     if(progreso!=nullptr){
         perfilCargado->setPerfil(*progreso);
-        delete progreso; //ya se copio el contenido adentro de perfilCargado
+        delete progreso;
     }
 
     return perfilCargado;
@@ -205,6 +206,17 @@ PerfilProgreso* GestorUsuario::cargarProgreso(const string& username){
     archivo.close();
 
     return perfilCargado;
+}
+
+int GestorUsuario::getCantidadUsuarios() const{
+    return cantidadUsuarios;
+}
+
+string GestorUsuario::getUsername(int indice) const{
+    if(indice<0 || indice>=cantidadUsuarios){
+        return "";
+    }
+    return ptrUsuarios[indice];
 }
 
 //destructor

@@ -45,7 +45,7 @@ void PantallaSignUp::cargarUi(){
                             "background-color: transparent;";
     QString estiloLineEdit= "background-color: #EEEEEE;"
                              "color: #0B0909;"
-                             "font-family: '8514oem';";
+                             "font-family: 'Segoe UI Black';";
 
     QLabel* lblNombre= new QLabel("Nombre");
     lblNombre->setStyleSheet(estiloLblForm);
@@ -114,29 +114,29 @@ void PantallaSignUp::cargarUi(){
                             "}"
                             "QPushButton:hover{"
                             "   background-color:"+COLORBOTONHOVER+";"
-                            "}"
-                            "QPushButton:pressed {"
-                            "   background-color:"+COLORBOTONPRESSED+";"
-                            "}");
+                                                "}"
+                                                "QPushButton:pressed {"
+                                                "   background-color:"+COLORBOTONPRESSED+";"
+                                                  "}");
 
     btnBack= new QPushButton("Regresar");
     btnBack->setStyleSheet("QPushButton{"
                            "   background-color: transparent;"
                            "   color: "+COLORFONT+";"
-                           "   font-family: 'Gill Sans MT Condensed';"
-                           "   font-size: 18px;"
-                           "   font-weight: bold;"
-                           "   border: 0px solid white;"
-                           "   border-radius: 5px;"
-                           "   padding: 1px;"
-                           "}"
-                           "QPushButton:hover{"
-                           "   color: white;"
-                           "   font-size:19px;"
-                           "}"
-                           "QPushButton:pressed {"
-                           "   color: "+COLORFONT+";"
-                           "}");
+                                         "   font-family: 'Gill Sans MT Condensed';"
+                                         "   font-size: 18px;"
+                                         "   font-weight: bold;"
+                                         "   border: 0px solid white;"
+                                         "   border-radius: 5px;"
+                                         "   padding: 1px;"
+                                         "}"
+                                         "QPushButton:hover{"
+                                         "   color: white;"
+                                         "   font-size:19px;"
+                                         "}"
+                                         "QPushButton:pressed {"
+                                         "   color: "+COLORFONT+";"
+                                         "}");
 
     layoutBox->addWidget(titulo);
     layoutBox->addLayout(layoutForm);
@@ -160,7 +160,7 @@ void PantallaSignUp::cargarUi(){
 void PantallaSignUp::crearNuevoUser(){
     string nuevoNombre= lineNombre->text().toStdString();
     string nuevoUsername= lineUser->text().toStdString();
-    string nuevaPassword= linePass->text().toStdString();//falta hashear la password
+    string nuevaPassword= linePass->text().toStdString();
 
     VentanaPrincipal* ventana=(VentanaPrincipal*)this->window();
 
@@ -175,7 +175,7 @@ void PantallaSignUp::crearNuevoUser(){
         ventana->gestorUsers->agregarUsuarioDisco(nuevoUsuario);
         ventana->gestorUsers->iniciarSesion(nuevoUsername);
 
-        ventana->menuPrincipal= new PantallaMenuPrincipal();
+        ventana->menuPrincipal= new PantallaMenuPrincipal(ventana);
         ventana->cambiarPantalla(ventana->menuPrincipal);
     }
 }

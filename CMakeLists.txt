@@ -18,9 +18,9 @@ qt_add_executable(BrickBreaker
     WIN32 MACOSX_BUNDLE
     main.cpp
     recursos.qrc
-    ui/mainwindow.cpp
-    ui/mainwindow.h
-    ui/mainwindow.ui
+
+
+
     ui/ventanaprincipal.h ui/ventanaprincipal.cpp
     ui/pantallamenuprincipal.h ui/pantallamenuprincipal.cpp
     ui/pantallalogin.h ui/pantallalogin.cpp
@@ -47,6 +47,10 @@ qt_add_executable(BrickBreaker
     utils/EstadisticasJugador.h
     model/PerfilProgreso.h
     model/PerfilProgreso.cpp
+    ui/pantallatienda.h ui/pantallatienda.cpp
+    ui/pantallarecords.h ui/pantallarecords.cpp
+    ui/pantallaopciones.h ui/pantallaopciones.cpp
+    ui/pantallaayuda.h ui/pantallaayuda.cpp
 
 
 )

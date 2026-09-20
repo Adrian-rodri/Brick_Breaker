@@ -15,6 +15,7 @@ MotorJuego::MotorJuego(int nivel){
 
     ptrOrbes= nullptr;
     cantidadOrbes= 0;
+    generarOrbes= true;
 }
 MotorJuego::~MotorJuego(){
     for(int i=0; i<cantidadPowerUps; i++){
@@ -31,6 +32,12 @@ MotorJuego::~MotorJuego(){
 
     delete partidaActual;
     partidaActual= nullptr;
+}
+void MotorJuego::aplicarMejoraVelocidadPlataforma(int nivelMejoraPlataforma){
+    if(nivelMejoraPlataforma > 1){
+        Plataforma* plat= partidaActual->getPlataforma();
+        plat->setVelocidad(plat->getVelocidad()+(nivelMejoraPlataforma -1));
+    }
 }
 void MotorJuego::manejarColisiones(const EstadisticasJugador& stats){
     int cant= partidaActual->getCantidadPelotas();
@@ -158,9 +165,11 @@ void MotorJuego::actualizarJuego(bool moverIzq, bool moverDer,bool esperando, co
         }
     }
     if(esperando){
-        int posX=plataforma->getX() + plataforma->getAncho()/2 -pelotas[0]->getDiametro()/2;
+        int posX=plataforma->getX()+ plataforma->getAncho()/2 -pelotas[0]->getDiametro()/2;
         int posY=plataforma->getY()- pelotas[0]->getDiametro();
-        pelotas[0]->setPosicion(posX,posY);
+        for(int i=0;i<partidaActual->getCantidadPelotas();i++){
+            pelotas[i]->setPosicion(posX,posY);
+        }
     }else{
 
         int cant= partidaActual->getCantidadPelotas();
@@ -187,8 +196,7 @@ void MotorJuego::lanzarPelotaInicial(){
 }
 void MotorJuego::intentarSoltarPowerUp(int x, int y){
     int chance= rand()%100;
-    if(chance<=20){ //20% de probabilidad de soltar un power-up
-
+    if(chance<=20){//20% de probabilidad de soltar un power-up
         //entre los tipos que hay disponibles
         TIPO_POWERUP tipoElegido;
         int tipoRand= rand()%3;
@@ -199,15 +207,15 @@ void MotorJuego::intentarSoltarPowerUp(int x, int y){
         }else{
             tipoElegido= PLATAFORMA_GRANDE;
         }
-        PowerUp* nuevo = new PowerUp(tipoElegido, x, y);
-        PowerUp** nuevaLista = new PowerUp*[cantidadPowerUps + 1];
-        for(int i = 0; i < cantidadPowerUps; i++){
-            nuevaLista[i] = ptrPowerUps[i];
+        PowerUp* nuevo= new PowerUp(tipoElegido, x, y);
+        PowerUp** nuevaLista= new PowerUp*[cantidadPowerUps + 1];
+        for(int i=0; i<cantidadPowerUps; i++){
+            nuevaLista[i]= ptrPowerUps[i];
         }
-        nuevaLista[cantidadPowerUps] = nuevo;
+        nuevaLista[cantidadPowerUps]= nuevo;
 
         delete[] ptrPowerUps;
-        ptrPowerUps = nuevaLista;
+        ptrPowerUps= nuevaLista;
         cantidadPowerUps++;
         huboNuevoPowerUp=true;
         posXNuevoPower=x;
@@ -241,8 +249,9 @@ void MotorJuego::actualizarPowerUps(){
     }
 }
 void MotorJuego::eliminarPowerUp(int indice){
-    if(indice<0 || indice>=cantidadPowerUps) return;
-
+    if(indice<0 || indice>=cantidadPowerUps){
+        return;
+    }
     delete ptrPowerUps[indice];
 
     PowerUp** nuevaLista= nullptr;
@@ -310,6 +319,9 @@ void MotorJuego::limpiarPowerUpsYOrbes(){
     cantidadOrbes= 0;
 }
 void MotorJuego::soltarOrbe(int x, int y, int valor){
+    if(!generarOrbes){
+        return;
+    }
     Orbe* nuevo= new Orbe(x,y,valor);
     Orbe** ptrNuevo= new Orbe*[cantidadOrbes+1];
     for(int i=0;i<cantidadOrbes;i++){
@@ -324,6 +336,9 @@ void MotorJuego::soltarOrbe(int x, int y, int valor){
     posXNuevoOrbe= x;
     posYNuevoOrbe= y;
     valorNuevoOrbe= valor;
+}
+void MotorJuego::setGenerarOrbes(bool activo){
+    generarOrbes= activo;
 }
 void MotorJuego::actualizarOrbes(){
     Plataforma* plataforma= partidaActual->getPlataforma();

@@ -11,7 +11,7 @@ void BloqueBlindado::recibirGolpe(const EstadisticasJugador& stats){
     golpesRestantes-= stats.damage;
 }
 int BloqueBlindado::getValorMoneda() const{
-    return 15;
+    return 5;
 }
 QBrush BloqueBlindado::getColor()const{
     return QBrush(QColor(117,125,111));

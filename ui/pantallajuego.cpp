@@ -10,9 +10,11 @@
 #include <QtMath>
 #include <QDialog>
 #include <QMessageBox>
+#include <QDebug>
 
-PantallaJuego::PantallaJuego(int nivel, QWidget* parent)
+PantallaJuego::PantallaJuego(int nivel, bool modoHistoria, QWidget* parent)
     : QWidget(parent){
+    this->modoHistoria= modoHistoria;
     motor= new MotorJuego(nivel);
     ptrBloques = nullptr;
     cargarUi();
@@ -20,6 +22,7 @@ PantallaJuego::PantallaJuego(int nivel, QWidget* parent)
 
 PantallaJuego::PantallaJuego(Partida* partidaCargada, QWidget* parent)
     : QWidget(parent){
+    modoHistoria= true;
     motor= new MotorJuego(partidaCargada->getNivel()->getNumeroNivel());
     motor->partidaActual= partidaCargada;
     ptrBloques= nullptr;
@@ -68,20 +71,31 @@ void PantallaJuego::cargarUi(){
     cargarSonidos();
 
     VentanaPrincipal* ventana= (VentanaPrincipal*)this->window();
-    if(ventana->gestorUsers->usuarioActual!=nullptr){
-        monedasAcumuladas= ventana->gestorUsers->usuarioActual->getPerfil().getCreditos();
+    PerfilProgreso* perfil= nullptr;
+    if(ventana != nullptr && ventana->gestorUsers->usuarioActual != nullptr){
+        perfil= &ventana->gestorUsers->usuarioActual->getPerfil();
+    }
+
+    if(perfil!= nullptr){
+        monedasAcumuladas= perfil->getCreditos();
     }else{
         monedasAcumuladas= 0;
     }
+    creditosIniciales= monedasAcumuladas;
 
-    if(ventana->gestorUsers->usuarioActual!=nullptr){
-        PerfilProgreso& perfil= ventana->gestorUsers->usuarioActual->getPerfil();
-        stats.damage= 1 + perfil.getNivelDañoBola();
-        stats.tieneMejoraArmadura= perfil.getDesbloqueoBlindaje();
+    if(perfil!= nullptr){
+        stats.damage= perfil->getNivelDañoBola();
+        stats.tieneMejoraArmadura= perfil->getDesbloqueoBlindaje();
+        motor->aplicarMejoraVelocidadPlataforma(perfil->getNivelVelocidadPlataforma());
+
+        int numeroNivel= motor->getPartida()->getNivel()->getNumeroNivel();
+        nivelDesbloqueado= (perfil->getMapaMaxDesbloqueado() >= numeroNivel);
     }else{
         stats.damage= 1;
         stats.tieneMejoraArmadura= false;
+        nivelDesbloqueado= false;
     }
+    motor->setGenerarOrbes(nivelDesbloqueado);
 
     spriteSimple= QPixmap(":/assets/bloqueSimple.png");
     spriteReforzado= QPixmap(":/assets/bloqueReforzado.png");
@@ -123,11 +137,9 @@ void PantallaJuego::actualizarHUD(){
         vida+="💗 ";
     }
     lblVidas->setText(vida);
-
-    // CAMBIO: se quito la linea de lblPuntos->setText(...) -> ya no se muestra puntaje
     lblBloques->setText(QString("%1 / %2 🧱").arg(motor->partidaActual->getNivel()->getBloquesRestantes()).arg(totalBloques));
     lblTiempo->setText(QString("🕛 %1 secs").arg(cronometro.elapsed()/1000));
-    lblMonedas->setText(QString("%1 🪙").arg(monedasAcumuladas));
+    lblMonedas->setText(QString("%1 🪙").arg(qRound(monedasAcumuladas)));
 
     lblAviso->setVisible(esperando);
     if(esperando&&!animandoEntrada && !animandoPelota){
@@ -142,9 +154,9 @@ void PantallaJuego::cargarHUD(QVBoxLayout* layoutVertical){
     layoutHUD->setContentsMargins(20, 10, 20, 10);
 
     QString estiloLabel="color: "+COLORFONT+";"
-                                                  "font-size: 20px;"
-                                                  "font-weight: bold;"
-                                                  "background-color: transparent;";
+                        "font-size: 20px;"
+                        "font-weight: bold;"
+                        "background-color: transparent;";
 
     lblVidas= new QLabel();
     lblTiempo=new QLabel();
@@ -175,34 +187,76 @@ void PantallaJuego::cargarHUD(QVBoxLayout* layoutVertical){
     lblAviso->setAlignment(Qt::AlignCenter);
     lblAviso->setFixedSize(320, 30);
     lblAviso->setStyleSheet("color: "+COLORFONT+";"
-                                                    "font-size: 14px;"
-                                                    "font-weight: bold;"
-                                                    "background-color: rgba(0,0,0,150);"
-                                                    "border-radius: 6px;");
-
+                            "font-size: 14px;"
+                            "font-weight: bold;"
+                            "background-color: rgba(0,0,0,150);"
+                            "border-radius: 6px;");
 }
 void PantallaJuego::cargarSonidos() {
     for(int i=0;i<3;i++){
-        sonidosToque[i]= new QSoundEffect(this);
-        sonidosToque[i]->setSource(QUrl("qrc:/assets/toque.wav"));
-        sonidosToque[i]->setVolume(0.8f);
-
-        sonidoDestruir[i]= new QSoundEffect(this);
-        sonidoDestruir[i]->setSource(QUrl("qrc:/assets/pop.wav"));
-        sonidoDestruir[i]->setVolume(0.9f);
-
-        sonidoBloqueado[i]= new QSoundEffect(this);
-        sonidoBloqueado[i]->setSource(QUrl("qrc:/assets/block.wav"));
-        sonidoBloqueado[i]->setVolume(0.8f);
-
-        sonidoMoneda[i]= new QSoundEffect(this);
-        sonidoMoneda[i]->setSource(QUrl("qrc:/assets/coin.wav"));
-        sonidoMoneda[i]->setVolume(0.4f);
-
+        crearEfectoSonido(sonidosToque[i], QUrl("qrc:/assets/toque.wav"), 0.8f);
+        crearEfectoSonido(sonidoDestruir[i], QUrl("qrc:/assets/pop.wav"), 0.9f);
+        crearEfectoSonido(sonidoBloqueado[i], QUrl("qrc:/assets/block.wav"), 0.8f);
+        crearEfectoSonido(sonidoMoneda[i], QUrl("qrc:/assets/coin.wav"), 0.4f);
     }
+}
 
+void PantallaJuego::crearEfectoSonido(EfectoAudio& efecto, const QUrl& fuente, float volumen){
+    efecto.player= new QMediaPlayer(this);
+    efecto.output= new QAudioOutput(this);
+    efecto.output->setVolume(volumen * VOLUMEN_GLOBAL);
+    efecto.player->setAudioOutput(efecto.output);
+    efecto.player->setSource(fuente);
+}
 
+void PantallaJuego::reconstruirSonido(EfectoAudio& efecto, const QUrl& fuente, float volumen){
+    EfectoAudio viejo= efecto;
 
+    efecto.player= new QMediaPlayer(this);
+    efecto.output= new QAudioOutput(this);
+    efecto.output->setVolume(volumen * VOLUMEN_GLOBAL);
+    efecto.player->setAudioOutput(efecto.output);
+    efecto.player->setSource(fuente);
+
+    viejo.player->deleteLater();
+    viejo.output->deleteLater();
+}
+
+void PantallaJuego::reconstruirTodosLosSonidos(){
+    for(int i=0;i<3;i++){
+        reconstruirSonido(sonidosToque[i], QUrl("qrc:/assets/toque.wav"), 0.8f);
+        reconstruirSonido(sonidoDestruir[i], QUrl("qrc:/assets/pop.wav"), 0.9f);
+        reconstruirSonido(sonidoBloqueado[i], QUrl("qrc:/assets/block.wav"), 0.8f);
+        reconstruirSonido(sonidoMoneda[i], QUrl("qrc:/assets/coin.wav"), 0.4f);
+    }
+}
+
+void PantallaJuego::reproducirSonido(EfectoAudio& efecto, int& indice, const QUrl& fuente, float volumen){
+    efecto.player->setPosition(0);
+    efecto.player->play();
+    indice= (indice + 1)%3;
+}
+void PantallaJuego::verificarSonidos(){
+    contadorVerificacionSonidos++;
+    if(contadorVerificacionSonidos<60){
+        return;
+    }
+    contadorVerificacionSonidos= 0;
+
+    for(int i=0;i<3;i++){
+        if(sonidosToque[i].player->error()!= QMediaPlayer::NoError){
+            reconstruirSonido(sonidosToque[i], QUrl("qrc:/assets/toque.wav"), 0.8f);
+        }
+        if(sonidoDestruir[i].player->error()!= QMediaPlayer::NoError){
+            reconstruirSonido(sonidoDestruir[i], QUrl("qrc:/assets/pop.wav"), 0.9f);
+        }
+        if(sonidoBloqueado[i].player->error()!= QMediaPlayer::NoError){
+            reconstruirSonido(sonidoBloqueado[i], QUrl("qrc:/assets/block.wav"), 0.8f);
+        }
+        if(sonidoMoneda[i].player->error()!= QMediaPlayer::NoError){
+            reconstruirSonido(sonidoMoneda[i], QUrl("qrc:/assets/coin.wav"), 0.4f);
+        }
+    }
 }
 QPixmap PantallaJuego::obtenerSprite(Bloque* bloque, int fila){
     QPixmap hoja;
@@ -280,10 +334,10 @@ void PantallaJuego::dibujarPelotas(){
     for(int i=0;i<cant;i++){
         Pelota* pelota= motor->partidaActual->getPelotas()[i];
 
-        QPixmap spriteEscalado = spritePelota.scaled(pelota->getDiametro(), pelota->getDiametro(),
+        QPixmap spriteEscalado= spritePelota.scaled(pelota->getDiametro(), pelota->getDiametro(),
                                                      Qt::KeepAspectRatio, Qt::SmoothTransformation);
 
-        QGraphicsPixmapItem* item = escena->addPixmap(spriteEscalado);
+        QGraphicsPixmapItem* item= escena->addPixmap(spriteEscalado);
         item->setPos(pelota->getX(), pelota->getY());
         itemsPelotas[i]=item;
     }
@@ -317,6 +371,7 @@ void PantallaJuego::keyReleaseEvent(QKeyEvent* event){
     }
 }
 void PantallaJuego::actualizarJuego(){
+    verificarSonidos();
     if(animandoEntrada){
         offsetAnimacion += 10;
 
@@ -347,9 +402,9 @@ void PantallaJuego::actualizarJuego(){
     }
     if(animandoPelota){
         escalaJugador += 0.01;
-        if(escalaJugador >= 1.0){
-            escalaJugador = 1.0;
-            animandoPelota = false;
+        if(escalaJugador>= 1.0){
+            escalaJugador= 1.0;
+            animandoPelota= false;
         }
         int cant= motor->getPartida()->getCantidadPelotas();
         for(int i=0;i<cant;i++){
@@ -372,25 +427,19 @@ void PantallaJuego::actualizarJuego(){
             agregarPowerUp(power);
             delete power;
         }
-        if(sonidoDestruir[indiceDestruir]->status() == QSoundEffect::Ready){
-            sonidoDestruir[indiceDestruir]->play();
-            indiceDestruir = (indiceDestruir + 1) % 3;
-        }
+        reproducirSonido(sonidoDestruir[indiceDestruir], indiceDestruir,
+                         QUrl("qrc:/assets/pop.wav"), 0.9f);
 
     }else if(motor->huboToque(fila,col)){
         Bloque* bloqueActualizado= motor->getPartida()->getNivel()->getMatriz()[fila][col];
         QPixmap sprite= obtenerSprite(bloqueActualizado, fila);
         ptrBloques[fila][col]->setBrush(QBrush(sprite));
         if(bloqueActualizado->getTipoBloque()==BLINDADO && !stats.tieneMejoraArmadura){
-            if(sonidoBloqueado[indiceBloquead]->status() == QSoundEffect::Ready){
-                sonidoBloqueado[indiceBloquead]->play();
-                indiceBloquead = (indiceBloquead + 1) % 3;
-            }
+            reproducirSonido(sonidoBloqueado[indiceBloquead], indiceBloquead,
+                             QUrl("qrc:/assets/block.wav"), 0.8f);
         }else{
-            if(sonidosToque[indiceToque]->status() == QSoundEffect::Ready){
-                sonidosToque[indiceToque]->play();
-                indiceToque = (indiceToque + 1) % 3;
-            }
+            reproducirSonido(sonidosToque[indiceToque], indiceToque,
+                             QUrl("qrc:/assets/toque.wav"), 0.8f);
         }
     }
     int indiceEliminadp=-1;
@@ -415,18 +464,16 @@ void PantallaJuego::actualizarJuego(){
     }
     int valorRecogido;
     if(motor->huboOrbeRecogido(valorRecogido)){
-        VentanaPrincipal* ventana= (VentanaPrincipal*)this->window();
-        int valorFinal= valorRecogido;
-        if(ventana->gestorUsers->usuarioActual!=nullptr){
-            valorFinal= (int)(valorRecogido *ventana->gestorUsers->usuarioActual->getPerfil().getMultiplicador());
-            ventana->gestorUsers->usuarioActual->getPerfil().sumarCreditos(valorFinal);
+        if(nivelDesbloqueado){
+            VentanaPrincipal* ventana= (VentanaPrincipal*)this->window();
+            double valorFinal= valorRecogido;
+            if(ventana->gestorUsers->usuarioActual!=nullptr){
+                valorFinal= valorRecogido *ventana->gestorUsers->usuarioActual->getPerfil().getMultiplicadorTotal();
+                ventana->gestorUsers->usuarioActual->getPerfil().sumarCreditos(valorFinal);
+            }
+            monedasAcumuladas+= valorFinal;
         }
-        monedasAcumuladas+= valorFinal;
-
-        if(sonidoMoneda[indiceMoneda]->status()==QSoundEffect::Ready){
-            sonidoMoneda[indiceMoneda]->play();
-            indiceMoneda= (indiceMoneda+1)%3;
-        }
+        reproducirSonido(sonidoMoneda[indiceMoneda], indiceMoneda,QUrl("qrc:/assets/coin.wav"), 0.4f);
     }
 
     actualizarPosiciones();
@@ -535,7 +582,8 @@ void PantallaJuego::agregarOrbe(int x, int y, int valor){
     for(int i=0;i<cantidadOrbes;i++){
         ptrNuevo[i]= itemsOrbes[i];
     }
-    QGraphicsEllipseItem* item= escena->addEllipse(0,0,14,14,QPen(Qt::black),QBrush(QColor(255,215,0)));
+    QPixmap skinMoneda(":/assets/moneda.png");
+    QGraphicsEllipseItem* item= escena->addEllipse(0,0,15,15,QPen(Qt::black),QBrush(skinMoneda));
     item->setPos(x,y);
     ptrNuevo[cantidadOrbes]= item;
 
@@ -593,17 +641,64 @@ void PantallaJuego::togglePausa(){
     moverIzq= false;
     moverDer= false;
 
-    QMessageBox cuadro(this);
-    cuadro.setWindowTitle("Pausa");
-    cuadro.setText("Juego En Pausa");
-    QPushButton* btnContinuar= cuadro.addButton("Continuar",QMessageBox::AcceptRole);
-    QPushButton* btnMenu= cuadro.addButton("Volver al menu",QMessageBox::RejectRole);
+    QDialog dialogo(this);
+    dialogo.setWindowTitle("Pausa");
+    dialogo.setModal(true);
+    dialogo.setFixedSize(340, 300);
+    dialogo.setStyleSheet("background-color: " + COLORSUBFONDO + ";");
 
-    cuadro.exec();
-    if(cuadro.clickedButton()==btnMenu){
+    QVBoxLayout* layoutDialogo = new QVBoxLayout(&dialogo);
+    layoutDialogo->setContentsMargins(25, 25, 25, 25);
+    layoutDialogo->setSpacing(15);
+
+    QLabel* lblPausa = new QLabel("⏸️ PAUSA");
+    lblPausa->setAlignment(Qt::AlignCenter);
+    lblPausa->setStyleSheet("color: " + COLORFONT + "; "
+                            "font-size: 30px; "
+                            "font-weight: bold; "
+                            "background-color: transparent;");
+    layoutDialogo->addWidget(lblPausa);
+
+    QLabel* lblInfo= new QLabel("El juego está detenido");
+    lblInfo->setAlignment(Qt::AlignCenter);
+    lblInfo->setStyleSheet("color: #AAAAAA; "
+                           "font-size: 15px; "
+                           "background-color: transparent;");
+    layoutDialogo->addWidget(lblInfo);
+    layoutDialogo->addStretch();
+
+    QString estiloBtnPausa ="QPushButton{"
+                            "background-color: transparent;"
+                            "color: " + COLORFONT + ";"
+                            "font-size: 18px;"
+                            "font-weight: bold;"
+                            "border-radius: 10px;"
+                            "border: 2px solid white;"
+                            "padding: 12px;"
+                            "}"
+                            "QPushButton:hover{"
+                            "background-color: " + COLORBOTONHOVER + ";"
+                            "}"
+                            "QPushButton:pressed{"
+                            "background-color: " + COLORBOTONPRESSED + ";"
+                            "}";
+    QPushButton* btnContinuar= new QPushButton("▶ Continuar");
+    btnContinuar->setStyleSheet(estiloBtnPausa);
+    btnContinuar->setFixedSize(220, 50);
+    connect(btnContinuar, &QPushButton::clicked, &dialogo, &QDialog::accept);
+    layoutDialogo->addWidget(btnContinuar, 0, Qt::AlignHCenter);
+
+    QPushButton* btnMenu= new QPushButton("🏠 Volver al menú");
+    btnMenu->setStyleSheet(estiloBtnPausa);
+    btnMenu->setFixedSize(220, 50);
+    connect(btnMenu, &QPushButton::clicked, &dialogo, &QDialog::reject);
+    layoutDialogo->addWidget(btnMenu, 0, Qt::AlignHCenter);
+
+    int resultado= dialogo.exec();
+    if(resultado== QDialog::Rejected){
         guardarProgresoActual();
         VentanaPrincipal* ventana= (VentanaPrincipal*)this->window();
-        PantallaMenuPrincipal*  pantallaMenu= new PantallaMenuPrincipal();
+        PantallaMenuPrincipal*  pantallaMenu= new PantallaMenuPrincipal(ventana);
         ventana->cambiarPantalla(pantallaMenu);
         return;
     }
@@ -618,6 +713,7 @@ void PantallaJuego::regenerarNivel(bool fueGameOver){
     liberarBloques();
     motor->getPartida()->getNivel()->regenerar();
     dibujarBloques();
+    reconstruirTodosLosSonidos();
     animandoEntrada= true;
     offsetAnimacion= -480;
     escalaJugador= 0.0;
@@ -687,7 +783,7 @@ void PantallaJuego::manejarFinDePartida(){
                         guardarProgresoActual();
                         timerJuego->stop();
                         VentanaPrincipal* ventana = (VentanaPrincipal*)this->window();
-                        PantallaMenuPrincipal* pantallaMenu = new PantallaMenuPrincipal();
+                        PantallaMenuPrincipal* pantallaMenu = new PantallaMenuPrincipal(ventana);
                         ventana->cambiarPantalla(pantallaMenu);
                         return;
                     }
@@ -703,9 +799,68 @@ void PantallaJuego::manejarFinDePartida(){
         }
     }
     if(motor->partidaActual->nivelCompletado()){
-        guardarProgresoActual();
-        regenerarNivel(false);
-        motor->limpiarPowerUpsYOrbes();
-        limpiarItemsPowerUpsYOrbes();
+        timerJuego->stop();
+        VentanaPrincipal* ventana= (VentanaPrincipal*)this->window();
+        int nivelActual= motor->getPartida()->getNivel()->getNumeroNivel();
+
+        bool primeraVez= true;
+        if(ventana->gestorUsers->usuarioActual != nullptr){
+            PerfilProgreso& perfil= ventana->gestorUsers->usuarioActual->getPerfil();
+            if(nivelActual < 3){
+                primeraVez= (perfil.getMapaMaxDesbloqueado() <= nivelActual);
+            }else{
+                primeraVez= !perfil.getHistoriaCompletada();
+            }
+        }
+        if(!modoHistoria || !primeraVez){
+            guardarProgresoActual();
+            regenerarNivel(false);
+            motor->limpiarPowerUpsYOrbes();
+            limpiarItemsPowerUpsYOrbes();
+            timerJuego->start(16);
+            return;
+        }
+        if(ventana->gestorUsers->usuarioActual != nullptr){
+            PerfilProgreso& perfil = ventana->gestorUsers->usuarioActual->getPerfil();
+            if(nivelActual < 3){
+                perfil.desbloquearMapa(nivelActual + 1);
+            }else{
+                perfil.completarHistoria();
+            }
+            ventana->gestorUsers->guardarProgreso(ventana->gestorUsers->usuarioActual->getUsername(), perfil);
+        }
+
+        double monedasGanadas= monedasAcumuladas- creditosIniciales;
+        if(monedasGanadas<0){
+            monedasGanadas= 0;
+        }
+
+        QMessageBox cuadro(this);
+        cuadro.setWindowTitle("Nivel Completado");
+
+        QPushButton* btnSiguiente= nullptr;
+        if(nivelActual< 3){
+            cuadro.setText(QString("¡Nivel %1 completado! 🎉\n\nHas desbloqueado el Nivel %2\n\nTiempo: %3 s\nMonedas ganadas: %4 🪙")
+                               .arg(nivelActual)
+                               .arg(nivelActual + 1)
+                               .arg(cronometro.elapsed()/1000)
+                               .arg(qRound(monedasGanadas)));
+            btnSiguiente = cuadro.addButton("Siguiente Nivel ▶", QMessageBox::AcceptRole);
+        }else{
+            cuadro.setText(QString("¡Felicidades! 🏆\n\nCompletaste todos los niveles del modo historia.\n\nTiempo: %1 s\nMonedas ganadas: %2 🪙")
+                               .arg(cronometro.elapsed()/1000)
+                               .arg(qRound(monedasGanadas)));
+        }
+        cuadro.addButton("Menú Principal", QMessageBox::RejectRole);
+        cuadro.exec();
+
+        if(btnSiguiente !=nullptr && cuadro.clickedButton()==btnSiguiente){
+            PantallaJuego* siguiente= new PantallaJuego(nivelActual+1, true, ventana);
+            ventana->cambiarPantalla(siguiente);
+        }else{
+            PantallaMenuPrincipal* pantallaMenu= new PantallaMenuPrincipal(ventana);
+            ventana->cambiarPantalla(pantallaMenu);
+        }
+        return;
     }
 }

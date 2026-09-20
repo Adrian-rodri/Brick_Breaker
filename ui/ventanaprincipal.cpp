@@ -14,9 +14,27 @@ VentanaPrincipal::VentanaPrincipal(QWidget *parent) : QMainWindow(parent) {
 
     pantallaLogin = new PantallaLogin(this);
     gestorUsers= new GestorUsuario();
+    cargarConfiguracion();
+
+    iniciarMusica();
 
     cambiarPantalla(pantallaLogin);
     this->showMaximized();
+}
+void VentanaPrincipal::iniciarMusica(){
+    reproductorMusica= new QMediaPlayer(this);
+    salidaMusica= new QAudioOutput(this);
+    salidaMusica->setVolume(0.3*VOLUMEN_GLOBAL);
+    reproductorMusica->setAudioOutput(salidaMusica);
+    reproductorMusica->setSource(QUrl("qrc:/assets/musica.mp3"));
+    reproductorMusica->setLoops(QMediaPlayer::Infinite);
+    reproductorMusica->play();
+}
+
+void VentanaPrincipal::actualizarVolumenMusica(){
+    if(salidaMusica != nullptr){
+        salidaMusica->setVolume(0.3*VOLUMEN_GLOBAL);
+    }
 }
 void VentanaPrincipal::cambiarPantalla(QWidget *pantalla){
     QWidget* anterior= stackWidget->currentWidget();
@@ -30,4 +48,8 @@ void VentanaPrincipal::cambiarPantalla(QWidget *pantalla){
     }
 }
 //destructor
-VentanaPrincipal::~VentanaPrincipal(){}
+VentanaPrincipal::~VentanaPrincipal(){
+    if(reproductorMusica != nullptr){
+        reproductorMusica->stop();
+    }
+}

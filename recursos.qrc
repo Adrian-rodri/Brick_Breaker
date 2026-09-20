@@ -10,5 +10,10 @@
         <file>assets/toque.wav</file>
         <file>assets/pop.wav</file>
         <file>assets/block.wav</file>
+        <file>assets/musica.mp3</file>
+        <file>assets/aumento.png</file>
+        <file>assets/bolaExtra.png</file>
+        <file>assets/corazon.png</file>
+        <file>assets/moneda.png</file>
     </qresource>
 </RCC>

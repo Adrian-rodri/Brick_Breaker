@@ -8,7 +8,8 @@
 #include <QTimer>
 #include <QElapsedTimer>
 #include <QLabel>
-#include <QSoundEffect>
+#include <QMediaPlayer>
+#include <QAudioOutput>
 
 #include "partida.h"
 #include "powerup.h"
@@ -17,12 +18,14 @@ class PantallaJuego : public QWidget
 {
     Q_OBJECT
 public:
-    PantallaJuego(int nivel, QWidget* parent = nullptr);
+    PantallaJuego(int nivel, bool modoHistoria, QWidget* parent = nullptr);
     PantallaJuego(Partida* partidaCargada, QWidget* parent = nullptr);
     ~PantallaJuego() override;
 
 private:
     MotorJuego* motor;
+    bool modoHistoria;
+    bool nivelDesbloqueado;
     QGraphicsRectItem*** ptrBloques;
     QGraphicsRectItem* itemPlataforma;
     QGraphicsPixmapItem** itemsPelotas;
@@ -32,7 +35,8 @@ private:
     QElapsedTimer cronometro;
     int cantidadPowerUps;
     int cantidadOrbes;
-    int monedasAcumuladas;//moverlo a perfilprogrseo despues
+    double monedasAcumuladas;
+    double creditosIniciales;
     EstadisticasJugador stats;
     bool enPausa;
     void togglePausa();
@@ -40,16 +44,27 @@ private:
     void actualizarJuego();
     void manejarFinDePartida();
     void regenerarNivel(bool fueGameOver);
-    //effects
-    QSoundEffect* sonidosToque[3];
+
+    //audio
+    struct EfectoAudio{
+        QMediaPlayer* player= nullptr;
+        QAudioOutput* output= nullptr;
+    };
+    EfectoAudio sonidosToque[3];
     int indiceToque= 0;
-    QSoundEffect* sonidoDestruir[3];
+    EfectoAudio sonidoDestruir[3];
     int indiceDestruir=0;
-    QSoundEffect* sonidoBloqueado[3];
+    EfectoAudio sonidoBloqueado[3];
     int indiceBloquead=0;
-    QSoundEffect* sonidoMoneda[3];
+    EfectoAudio sonidoMoneda[3];
     int indiceMoneda=0;
     void cargarSonidos();
+    void crearEfectoSonido(EfectoAudio& efecto, const QUrl& fuente, float volumen);
+    void reconstruirSonido(EfectoAudio& efecto, const QUrl& fuente, float volumen);
+    void reconstruirTodosLosSonidos();
+    void reproducirSonido(EfectoAudio& efecto, int& indice, const QUrl& fuente, float volumen);
+    void verificarSonidos();
+    int contadorVerificacionSonidos= 0;
     //movimiento
     bool moverIzq;
     bool moverDer;

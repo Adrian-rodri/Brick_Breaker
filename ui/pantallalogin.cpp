@@ -20,9 +20,9 @@ PantallaLogin::PantallaLogin(QWidget *parent) : QWidget(parent) {
 
 void PantallaLogin::cargarUI(){
     this->setMinimumSize(900,600);
-    QVBoxLayout *layoutPrincipal = new QVBoxLayout(this);
+    QVBoxLayout *layoutPrincipal= new QVBoxLayout(this);
 
-    QGroupBox *boxLogin = new QGroupBox("Log In");
+    QGroupBox *boxLogin= new QGroupBox("Log In");
     boxLogin->setFixedSize(400,380);
     boxLogin->setStyleSheet("QGroupBox{"
                             "   background-color:"+COLORSUBFONDO+";"
@@ -35,7 +35,6 @@ void PantallaLogin::cargarUI(){
                             "   subcontrol-origin: margin;"
                             "   left:10px;"
                             "}");
-
     QVBoxLayout *layoutBox= new QVBoxLayout(boxLogin);
 
     titulo= new QLabel("");
@@ -44,14 +43,14 @@ void PantallaLogin::cargarUI(){
     titulo->setAlignment(Qt::AlignCenter);
     titulo->setStyleSheet("background-color: transparent; "
                           "margin-bottom: 5px;");
-    QFormLayout *layoutForm = new QFormLayout();
+    QFormLayout *layoutForm= new QFormLayout();
 
     QString estiloLblForm= "font-family: 'Consolas';"
                             "background-color: transparent;"
                             "font-weight:bold;";
-    QLabel *lblUser = new QLabel("Usuario");
+    QLabel *lblUser= new QLabel("Usuario");
     lblUser->setStyleSheet(estiloLblForm);
-    QLabel *lblPass = new QLabel("Contraseña");
+    QLabel *lblPass= new QLabel("Contraseña");
     lblPass->setStyleSheet(estiloLblForm);
 
     QString estiloLineEdit= "background-color: #EEEEEE;"
@@ -170,9 +169,9 @@ void PantallaLogin::solicitarLogin(){
 
     }else if(ventana->gestorUsers->validarLogin(txtUser,txtPass)){
         ventana->gestorUsers->iniciarSesion(txtUser);
-
-        ventana->menuPrincipal= new PantallaMenuPrincipal();
-        ventana->cambiarPantalla(ventana->menuPrincipal);
+        PantallaMenuPrincipal *menuPrincipal= new PantallaMenuPrincipal(ventana);
+        //ventana->gestorUsers->usuarioActual->getPerfil().sumarCreditos(10000);
+        ventana->cambiarPantalla(menuPrincipal);
 
     }else{
         lblStatus->setText("Credenciales Incorrectas.");
@@ -181,7 +180,7 @@ void PantallaLogin::solicitarLogin(){
 void PantallaLogin::irACrearCuenta(){
     VentanaPrincipal* principal=(VentanaPrincipal*)this->window();
 
-    PantallaSignUp *pantallaCrear= new PantallaSignUp();
+    PantallaSignUp *pantallaCrear= new PantallaSignUp(principal);
     principal->cambiarPantalla(pantallaCrear);
 
 }

@@ -1,4 +1,5 @@
 #include "powerup.h"
+#include <QPixmap>
 
 PowerUp::PowerUp(TIPO_POWERUP tipo, int posX, int posY){
     this->tipo=tipo;
@@ -15,20 +16,37 @@ void PowerUp::setPosicion(int nuevaX,int nuevaY){
     posX=nuevaX;
     posY=nuevaY;
 }
-int PowerUp::getX() const{ return posX; }
-int PowerUp::getY() const{ return posY; }
-int PowerUp::getAncho() const{ return ancho; }
-int PowerUp::getAlto() const{ return alto; }
-TIPO_POWERUP PowerUp::getTipo() const{ return tipo; }
+int PowerUp::getX() const{
+    return posX;
+}
+int PowerUp::getY() const{
+    return posY;
+}
+int PowerUp::getAncho() const{
+    return ancho;
+}
+int PowerUp::getAlto() const{
+    return alto;
+}
+TIPO_POWERUP PowerUp::getTipo() const{
+    return tipo;
+}
 
 QBrush PowerUp::getColor() const{
+    QPixmap skin;
     switch(tipo){
     case BOLA_EXTRA:
-        return QBrush(QColor(255,255,255)); //blanco
-        case VIDA_EXTRA:
-        return QBrush(QColor(220,20,60)); //rojo
-        case PLATAFORMA_GRANDE:
-            return QBrush(QColor(70,130,180)); //azul
+        skin.load(":/assets/bolaExtra.png");
+        break;
+    case VIDA_EXTRA:
+        skin.load(":/assets/corazon.png");
+        break;
+    case PLATAFORMA_GRANDE:
+        skin.load(":/assets/aumento.png");
+        break;
+    }
+    if(!skin.isNull()){
+        return QBrush(skin.scaled(ancho, alto, Qt::IgnoreAspectRatio, Qt::SmoothTransformation));
     }
     return QBrush(Qt::white);
 }

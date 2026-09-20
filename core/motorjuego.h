@@ -51,6 +51,8 @@ private:
     bool seRecogioOrbe;
     int valorOrbeRecogido;
 
+    bool generarOrbes;
+
     void eliminarOrbe(int indice);
 public:
     MotorJuego(int nivel);
@@ -58,6 +60,7 @@ public:
     Partida* partidaActual;
 
     void actualizarJuego(bool movIzq, bool movDer, bool esperando,const EstadisticasJugador& stats);
+    void aplicarMejoraVelocidadPlataforma(int nivelMejoraPlataforma);
     void manejarColisiones(const EstadisticasJugador& stats);
     void manejarColisionesPelota(Pelota* pelota, const EstadisticasJugador& stats);
     void rebotarEnPlataforma(Pelota *pelota);
@@ -80,6 +83,7 @@ public:
     void actualizarOrbes();
     void soltarOrbe(int x, int y, int valor);
     void aplicarOrbe(Orbe* orbe);
+    void setGenerarOrbes(bool activo);
 
     bool huboNuevoOrbe(int& x, int& y, int& valor);
     bool huboOrbeEliminado(int& indice);

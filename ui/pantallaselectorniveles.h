@@ -1,8 +1,9 @@
 #ifndef PANTALLASELECTORNIVELES_H
 #define PANTALLASELECTORNIVELES_H
 #include <QWidget>
+#include <QLabel>
 
-class PantallaSelectorNiveles : public QWidget
+class PantallaSelectorNiveles: public QWidget
 {
     Q_OBJECT
 public:
@@ -10,6 +11,9 @@ public:
 private:
     void cargarUi();
     void irAlNivel(int numNivel);
+    void volverAlMenu();
+
+    QLabel* lblCreditos;
 };
 
 #endif // PANTALLASELECTORNIVELES_H

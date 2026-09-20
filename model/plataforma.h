@@ -22,6 +22,7 @@ public:
     int getY() const;
     int getAncho() const;
     int getAlto()const;
+    int getVelocidad() const;
 };
 
 #endif // PLATAFORMA_H

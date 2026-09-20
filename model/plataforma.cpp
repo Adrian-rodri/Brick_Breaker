@@ -34,18 +34,21 @@ void Plataforma::setPosicion(int nuevaX, int nuevaY) {
 void Plataforma::setVelocidad(int nuevaVel){
     velocidad=nuevaVel;
 }
-int Plataforma::getX() const {
+int Plataforma::getVelocidad() const{
+    return velocidad;
+}
+int Plataforma::getX() const{
     return posX;
 }
 
-int Plataforma::getY() const {
+int Plataforma::getY() const{
     return posY;
 }
 
-int Plataforma::getAncho() const {
+int Plataforma::getAncho() const{
     return ancho;
 }
 
-int Plataforma::getAlto() const {
+int Plataforma::getAlto() const{
     return alto;
 }

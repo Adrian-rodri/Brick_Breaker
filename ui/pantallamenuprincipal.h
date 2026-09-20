@@ -12,11 +12,12 @@ class PantallaMenuPrincipal : public QWidget
 {
     Q_OBJECT
 public:
-     PantallaMenuPrincipal(QWidget *parent=nullptr);
+    PantallaMenuPrincipal(QWidget *parent=nullptr);
     ~PantallaMenuPrincipal();
 
 private:
     QLabel *titulo;
+    QLabel *lblCreditos;
     QPushButton *btnJugar;
     QPushButton *btnNiveles;
     QPushButton *btnRecords;
@@ -33,6 +34,10 @@ private:
     void irAlJuego();
     void irAOpciones();
     void irANiveles();
+    void irATienda();
+    void irARecords();
+    void irAAyuda();
+    void salir();
 };
 
 #endif // PANTALLAMENUPRINCIPAL_H

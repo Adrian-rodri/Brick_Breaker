@@ -34,6 +34,9 @@ public:
 
     void guardarProgreso(const string& username, PerfilProgreso& perfil);
     PerfilProgreso* cargarProgreso(const string& username);
+
+    int getCantidadUsuarios() const;
+    string getUsername(int indice) const;
 };
 
 #endif // GESTORUSUARIO_H
