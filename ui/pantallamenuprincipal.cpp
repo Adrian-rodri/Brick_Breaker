@@ -53,7 +53,7 @@ void PantallaMenuPrincipal::cargarUI() {
 
     btnJugar= new QPushButton("Jugar", this);
     btnNiveles= new QPushButton("Niveles", this);
-    btnRecords= new QPushButton("Records", this);
+    btnRecords= new QPushButton("Ranking", this);
     btnSalir= new QPushButton("Salir", this);
 
     btnAyuda= new QPushButton("❓", this);

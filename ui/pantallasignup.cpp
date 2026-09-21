@@ -174,6 +174,7 @@ void PantallaSignUp::crearNuevoUser(){
         Usuario nuevoUsuario(nuevoNombre,nuevoUsername,nuevaPassword);
         ventana->gestorUsers->agregarUsuarioDisco(nuevoUsuario);
         ventana->gestorUsers->iniciarSesion(nuevoUsername);
+        ventana->gestorUsers->guardarProgreso(nuevoUsername,ventana->gestorUsers->usuarioActual->getPerfil());
 
         ventana->menuPrincipal= new PantallaMenuPrincipal(ventana);
         ventana->cambiarPantalla(ventana->menuPrincipal);

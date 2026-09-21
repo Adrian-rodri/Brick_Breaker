@@ -170,7 +170,6 @@ void PantallaLogin::solicitarLogin(){
     }else if(ventana->gestorUsers->validarLogin(txtUser,txtPass)){
         ventana->gestorUsers->iniciarSesion(txtUser);
         PantallaMenuPrincipal *menuPrincipal= new PantallaMenuPrincipal(ventana);
-        //ventana->gestorUsers->usuarioActual->getPerfil().sumarCreditos(10000);
         ventana->cambiarPantalla(menuPrincipal);
 
     }else{

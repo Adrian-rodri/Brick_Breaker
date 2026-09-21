@@ -288,6 +288,12 @@ void PantallaJuego::liberarBloques(){
         return;
     }
     for(int i=0;i<filas;i++){
+        for(int j=0;j<col;j++){
+            if(ptrBloques[i][j]!=nullptr){
+                escena->removeItem(ptrBloques[i][j]);
+                delete ptrBloques[i][j];
+            }
+        }
         delete[] ptrBloques[i];
     }
     delete[] ptrBloques;
@@ -782,6 +788,77 @@ void PantallaJuego::manejarFinDePartida(){
                     if(motor->partidaActual->estaTerminada()){
                         guardarProgresoActual();
                         timerJuego->stop();
+
+                        double monedasGanadas= monedasAcumuladas - creditosIniciales;
+                        if(monedasGanadas<0){
+                            monedasGanadas= 0;
+                        }
+
+                        QDialog dialogo(this);
+                        dialogo.setWindowTitle("Game Over");
+                        dialogo.setModal(true);
+                        dialogo.setFixedSize(340, 320);
+                        dialogo.setStyleSheet("background-color: " + COLORSUBFONDO + ";");
+
+                        QVBoxLayout* layoutDialogo= new QVBoxLayout(&dialogo);
+                        layoutDialogo->setContentsMargins(25, 25, 25, 25);
+                        layoutDialogo->setSpacing(15);
+
+                        QLabel* lblGameOver= new QLabel("💀 GAME OVER");
+                        lblGameOver->setAlignment(Qt::AlignCenter);
+                        lblGameOver->setStyleSheet("color: " + COLORFONT + "; "
+                                                   "font-size: 30px; "
+                                                   "font-weight: bold; "
+                                                   "background-color: transparent;");
+                        layoutDialogo->addWidget(lblGameOver);
+
+                        QLabel* lblInfo= new QLabel(QString("Tiempo: %1 s\nMonedas ganadas: %2 🪙").arg(cronometro.elapsed()/1000).arg(qRound(monedasGanadas)));
+                        lblInfo->setAlignment(Qt::AlignCenter);
+                        lblInfo->setStyleSheet("color: #AAAAAA; "
+                                               "font-size: 15px; "
+                                               "background-color: transparent;");
+                        layoutDialogo->addWidget(lblInfo);
+                        layoutDialogo->addStretch();
+
+                        QString estiloBtnPausa= "QPushButton{"
+                                                "background-color: transparent;"
+                                                "color: " + COLORFONT + ";"
+                                                "font-size: 18px;"
+                                                "font-weight: bold;"
+                                                "border-radius: 10px;"
+                                                "border: 2px solid white;"
+                                                "padding: 12px;"
+                                                "}"
+                                                "QPushButton:hover{"
+                                                "background-color: " + COLORBOTONHOVER + ";"
+                                                "}"
+                                                "QPushButton:pressed{"
+                                                "background-color: " + COLORBOTONPRESSED + ";"
+                                                "}";
+                        QPushButton* btnReintentar= new QPushButton("🔄 Reintentar");
+                        btnReintentar->setStyleSheet(estiloBtnPausa);
+                        btnReintentar->setFixedSize(220, 50);
+                        connect(btnReintentar, &QPushButton::clicked, &dialogo, &QDialog::accept);
+                        layoutDialogo->addWidget(btnReintentar, 0, Qt::AlignHCenter);
+
+                        QPushButton* btnMenu= new QPushButton("🏠 Menú Principal");
+                        btnMenu->setStyleSheet(estiloBtnPausa);
+                        btnMenu->setFixedSize(220, 50);
+                        connect(btnMenu, &QPushButton::clicked, &dialogo, &QDialog::reject);
+                        layoutDialogo->addWidget(btnMenu, 0, Qt::AlignHCenter);
+
+                        int resultado= dialogo.exec();
+
+                        if(resultado== QDialog::Accepted){
+                            creditosIniciales= monedasAcumuladas;
+                            cronometro.restart();
+                            regenerarNivel(true);
+                            motor->limpiarPowerUpsYOrbes();
+                            limpiarItemsPowerUpsYOrbes();
+                            timerJuego->start(16);
+                            return;
+                        }
+
                         VentanaPrincipal* ventana = (VentanaPrincipal*)this->window();
                         PantallaMenuPrincipal* pantallaMenu = new PantallaMenuPrincipal(ventana);
                         ventana->cambiarPantalla(pantallaMenu);
@@ -835,26 +912,75 @@ void PantallaJuego::manejarFinDePartida(){
             monedasGanadas= 0;
         }
 
-        QMessageBox cuadro(this);
-        cuadro.setWindowTitle("Nivel Completado");
+        QDialog dialogo(this);
+        dialogo.setWindowTitle("Nivel Completado");
+        dialogo.setModal(true);
+        dialogo.setFixedSize(340, 340);
+        dialogo.setStyleSheet("background-color: " + COLORSUBFONDO + ";");
 
+        QVBoxLayout* layoutDialogo= new QVBoxLayout(&dialogo);
+        layoutDialogo->setContentsMargins(25, 25, 25, 25);
+        layoutDialogo->setSpacing(15);
+
+        QLabel* lblTitulo= new QLabel(nivelActual< 3?"🎉 ¡NIVEL COMPLETADO!": "🏆 ¡HISTORIA COMPLETADA!");
+        lblTitulo->setAlignment(Qt::AlignCenter);
+        lblTitulo->setWordWrap(true);
+        lblTitulo->setStyleSheet("color: " + COLORFONT + "; "
+                                "font-size: 26px; "
+                                "font-weight: bold; "
+                                "background-color: transparent;");
+        layoutDialogo->addWidget(lblTitulo);
+
+        QString textoInfo;
+        if(nivelActual< 3){
+            textoInfo= QString("Has desbloqueado el Nivel %1\n\nTiempo: %2 s\nMonedas ganadas: %3 🪙")
+                        .arg(nivelActual + 1)
+                        .arg(cronometro.elapsed()/1000)
+                        .arg(qRound(monedasGanadas));
+        }else{
+            textoInfo= QString("Completaste todos los niveles del modo historia.\n\nTiempo: %1 s\nMonedas ganadas: %2 🪙").arg(cronometro.elapsed()/1000).arg(qRound(monedasGanadas));
+        }
+        QLabel* lblInfo= new QLabel(textoInfo);
+        lblInfo->setAlignment(Qt::AlignCenter);
+        lblInfo->setStyleSheet("color: #AAAAAA; "
+                               "font-size: 15px; "
+                               "background-color: transparent;");
+        layoutDialogo->addWidget(lblInfo);
+        layoutDialogo->addStretch();
+
+        QString estiloBtnPausa= "QPushButton{"
+                                "background-color: transparent;"
+                                "color: " + COLORFONT + ";"
+                                "font-size: 18px;"
+                                "font-weight: bold;"
+                                "border-radius: 10px;"
+                                "border: 2px solid white;"
+                                "padding: 12px;"
+                                "}"
+                                "QPushButton:hover{"
+                                "background-color: " + COLORBOTONHOVER + ";"
+                                "}"
+                                "QPushButton:pressed{"
+                                "background-color: " + COLORBOTONPRESSED + ";"
+                                "}";
         QPushButton* btnSiguiente= nullptr;
         if(nivelActual< 3){
-            cuadro.setText(QString("¡Nivel %1 completado! 🎉\n\nHas desbloqueado el Nivel %2\n\nTiempo: %3 s\nMonedas ganadas: %4 🪙")
-                               .arg(nivelActual)
-                               .arg(nivelActual + 1)
-                               .arg(cronometro.elapsed()/1000)
-                               .arg(qRound(monedasGanadas)));
-            btnSiguiente = cuadro.addButton("Siguiente Nivel ▶", QMessageBox::AcceptRole);
-        }else{
-            cuadro.setText(QString("¡Felicidades! 🏆\n\nCompletaste todos los niveles del modo historia.\n\nTiempo: %1 s\nMonedas ganadas: %2 🪙")
-                               .arg(cronometro.elapsed()/1000)
-                               .arg(qRound(monedasGanadas)));
+            btnSiguiente= new QPushButton("▶ Siguiente Nivel");
+            btnSiguiente->setStyleSheet(estiloBtnPausa);
+            btnSiguiente->setFixedSize(220, 50);
+            connect(btnSiguiente, &QPushButton::clicked, &dialogo, &QDialog::accept);
+            layoutDialogo->addWidget(btnSiguiente, 0, Qt::AlignHCenter);
         }
-        cuadro.addButton("Menú Principal", QMessageBox::RejectRole);
-        cuadro.exec();
 
-        if(btnSiguiente !=nullptr && cuadro.clickedButton()==btnSiguiente){
+        QPushButton* btnMenu= new QPushButton("🏠 Menú Principal");
+        btnMenu->setStyleSheet(estiloBtnPausa);
+        btnMenu->setFixedSize(220, 50);
+        connect(btnMenu, &QPushButton::clicked, &dialogo, &QDialog::reject);
+        layoutDialogo->addWidget(btnMenu, 0, Qt::AlignHCenter);
+
+        int resultado= dialogo.exec();
+
+        if(btnSiguiente!=nullptr && resultado== QDialog::Accepted){
             PantallaJuego* siguiente= new PantallaJuego(nivelActual+1, true, ventana);
             ventana->cambiarPantalla(siguiente);
         }else{
