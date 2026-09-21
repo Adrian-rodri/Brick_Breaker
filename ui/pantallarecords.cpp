@@ -28,7 +28,7 @@ void PantallaRecords::cargarUI(){
 
     QVBoxLayout* layoutPrincipal= new QVBoxLayout(this);
 
-    QLabel* lblTitulo= new QLabel("🏆 Records");
+    QLabel* lblTitulo= new QLabel("🏆 Ranking");
     lblTitulo->setAlignment(Qt::AlignCenter);
     lblTitulo->setStyleSheet("color: #FFD700; "
                              "font-size: 34px; "
